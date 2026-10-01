@@ -42,7 +42,9 @@ export const useDocFilePicker = () => {
       }
 
       const asset = result.assets[0];
+
       let pending: DocumentRow;
+
       try {
         pending = toDocumentRow(asset);
       } catch (e) {
@@ -54,6 +56,7 @@ export const useDocFilePicker = () => {
       }
 
       const saved = await persist(pending);
+
       if (!saved) {
         Alert.alert(
           "Couldn't save document",

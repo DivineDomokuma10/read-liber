@@ -1,2 +1,2 @@
-export * from "./client.db";
-export * from "./schema.db";
+export * from "./client";
+export * from "./schema";

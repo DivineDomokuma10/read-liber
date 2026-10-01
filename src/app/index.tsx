@@ -8,8 +8,7 @@ import Storage from "expo-sqlite/kv-store";
 export default function Index() {
   let hasSeenOnboarding = false;
   try {
-    hasSeenOnboarding =
-      Storage.getItemSync("hasSeenOnboarding") === "true";
+    hasSeenOnboarding = Storage.getItemSync("hasSeenOnboarding") === "true";
   } catch {
     hasSeenOnboarding = false;
   }

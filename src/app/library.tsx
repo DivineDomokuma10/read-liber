@@ -18,8 +18,8 @@ import { useDocFilePicker } from "@/hooks";
  * Reads from expo-sqlite; empty DB renders <EmptyLibrary /> (spec:8).
  */
 export default function Library() {
-  const [documents, setDocuments] = useState<Document[]>([]);
   const { onFilePick } = useDocFilePicker();
+  const [documents, setDocuments] = useState<Document[]>([]);
 
   const loadDocuments = useCallback(async () => {
     try {

@@ -1,5 +1,5 @@
-import { DocumentRow } from "@/types/";
-import { openDatabase } from "@/db/";
+import { openDatabase } from "@/db";
+import { DocumentRow } from "@/types";
 
 export class Database {
   static async getDocuments(): Promise<DocumentRow[]> {

@@ -1,4 +1,4 @@
-import { openDatabase } from "./client.db";
+import { openDatabase } from "./client";
 
 export const createDocSchema = async () => {
   const db = await openDatabase();
