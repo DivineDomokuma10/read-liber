@@ -1,11 +1,14 @@
+import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
-/**
- * Root layout — every file in `src/app/` is a screen.
- * Phase 1 route map: / (redirect) → /onboarding → /library
- */
+import { createDocSchema } from "@/db/";
+
 export default function RootLayout() {
+  useEffect(() => {
+    createDocSchema().catch(console.error);
+  }, []);
+
   return (
     <>
       <StatusBar style="auto" />

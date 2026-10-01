@@ -1,9 +1,12 @@
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
 import { libraryStyle } from "@/styles";
 import type { Document } from "@/types/document";
-import { MOCK_DOCUMENTS } from "@/data/mockDocuments";
+import { toDocument } from "@/utils";
+import { Database } from "@/services/db.services";
 
 import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { DocumentListItem } from "@/components/DocumentListItem";
@@ -12,23 +15,35 @@ import { useDocFilePicker } from "@/hooks";
 /**
  * Home / Library — spec:7, spec:8, spec:11.
  * Not a file manager: recent docs + search + open action only.
+ * Reads from expo-sqlite; empty DB renders <EmptyLibrary /> (spec:8).
  */
-
-// TODO (Phase 3): replace this flag with `documents` loaded from
-// expo-sqlite. Empty array must render <EmptyLibrary /> (spec:8).
-const USE_MOCK_DATA = true;
-
 export default function Library() {
-  const { error, fileData, onFilePick } = useDocFilePicker();
-  const documents: Document[] = USE_MOCK_DATA ? MOCK_DOCUMENTS : [];
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const { onFilePick } = useDocFilePicker();
+
+  const loadDocuments = useCallback(async () => {
+    try {
+      const rows = await Database.getDocuments();
+      setDocuments(rows.map(toDocument));
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadDocuments();
+    }, [loadDocuments]),
+  );
 
   const handleOpenDocument = async () => {
-    await onFilePick();
-    console.log("TODO (Phase 2): open native file picker");
+    const saved = await onFilePick();
+    if (saved) {
+      await loadDocuments();
+    }
   };
 
   const handlePressDocument = (doc: Document) => {
-    // TODO (Phase 2/4): router.push(`/reader?id=${doc.id}`).
     console.log("TODO (Phase 4): open reader for", doc.id);
   };
 
@@ -39,7 +54,7 @@ export default function Library() {
     >
       <View style={libraryStyle.header}>
         <Text style={libraryStyle.headerTitle}>Reader</Text>
-        {/* TODO (Phase 6): library search by filename (spec:19). */}
+
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Search library"
@@ -62,7 +77,6 @@ export default function Library() {
               <DocumentListItem document={item} onPress={handlePressDocument} />
             )}
           />
-          {/* TODO (Phase 2): same picker as the empty state. */}
           <TouchableOpacity
             style={libraryStyle.fab}
             onPress={handleOpenDocument}
@@ -71,16 +85,6 @@ export default function Library() {
           >
             <Text style={libraryStyle.fabLabel}>+</Text>
           </TouchableOpacity>
-        </View>
-      )}
-
-      {error && !fileData && <Text>{error}</Text>}
-      {!error && fileData && (
-        <View>
-          <Text>File info:</Text>
-          <Text>name: {fileData.name}</Text>
-          <Text>size: {fileData?.size}</Text>
-          <Text>: {fileData?.uri}</Text>
         </View>
       )}
     </SafeAreaView>

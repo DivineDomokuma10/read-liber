@@ -1,11 +1,17 @@
 import { Redirect } from "expo-router";
+import Storage from "expo-sqlite/kv-store";
 
 /**
- * App entry. Decides onboarding vs library.
- *
- * TODO (Phase 3): persist `hasSeenOnboarding` (mmkv) and redirect to
- * `/library` when true. For Phase 1, always show onboarding.
+ * App entry. Skips onboarding when it was already seen.
+ * Flag persists in expo-sqlite/kv-store (no extra dependency).
  */
 export default function Index() {
-  return <Redirect href="/onboarding" />;
+  let hasSeenOnboarding = false;
+  try {
+    hasSeenOnboarding =
+      Storage.getItemSync("hasSeenOnboarding") === "true";
+  } catch {
+    hasSeenOnboarding = false;
+  }
+  return <Redirect href={hasSeenOnboarding ? "/library" : "/onboarding"} />;
 }

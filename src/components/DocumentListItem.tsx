@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { Document } from "@/types/document";
+import { formatLastOpened } from "@/utils";
 
 type Props = {
   document: Document;
@@ -42,17 +43,6 @@ export function DocumentListItem({ document, onPress }: Props) {
       {/* TODO (Phase 3): favorite star toggle goes here. */}
     </TouchableOpacity>
   );
-}
-
-// TODO (you): move this to a `src/utils/format.ts` and handle
-// minutes / hours / days / weeks properly. Keep it pure + tested.
-function formatLastOpened(lastOpened: number): string {
-  const diffMin = Math.max(1, Math.round((Date.now() - lastOpened) / 60000));
-  if (diffMin < 60) return diffMin + " min ago";
-  const diffHours = Math.round(diffMin / 60);
-  if (diffHours < 24) return diffHours + " h ago";
-  const diffDays = Math.round(diffHours / 24);
-  return diffDays + " d ago";
 }
 
 const styles = StyleSheet.create({

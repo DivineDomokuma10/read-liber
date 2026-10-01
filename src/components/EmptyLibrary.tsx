@@ -15,7 +15,6 @@ export function EmptyLibrary({ onOpenDocument }: Props) {
       <Text style={styles.title}>No documents yet</Text>
       <Text style={styles.subtitle}>Open a document to get started</Text>
 
-      {/* TODO (Phase 2): wire this to expo-document-picker. */}
       <TouchableOpacity
         style={styles.fab}
         onPress={onOpenDocument}

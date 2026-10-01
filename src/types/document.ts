@@ -1,12 +1,11 @@
-/**
- * Document entity — from Phase 0 NOTES.md §5.
- *
- * Field origins (TODO: verify each as you build):
- * - picker  → uri, name, mime
- * - DB      → id, lastOpened, page, percent, favorite
- * - renderer→ page, percent (updates while reading)
- */
 export type DocumentType = "pdf" | "docx" | "md" | "txt";
+
+export type PickedAsset = {
+  uri: string;
+  name: string;
+  mimeType?: string;
+  size?: number;
+};
 
 export type Document = {
   id: string;
@@ -20,8 +19,18 @@ export type Document = {
   favorite: boolean;
 };
 
-// TODO (you): spec lists DOC as well as DOCX (spec:5). How will you
-// represent a legacy `.doc` file in `DocumentType`? Options:
-//   a) widen the union with "doc"
-//   b) normalize "doc" -> "docx" at import time
-// Write your choice in docs/NOTES.md Phase 1 before coding it.
+export type DocumentRow = {
+  id: string;
+  uri: string;
+  name: string;
+  page: number;
+  percent: number;
+  favorite: 0 | 1;
+  created_at: number;
+  updated_at: number;
+  size: number | null;
+  local_uri: string | null;
+  mime_type: string | null;
+  last_opened: number | null;
+  type: "pdf" | "docx" | "md" | "txt";
+};
