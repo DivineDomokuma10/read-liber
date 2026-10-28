@@ -3,15 +3,10 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { readerStyle as styles } from "@/styles";
-import type { DocumentRow } from "@/types";
+import { resolveDocumentUri } from "@/utils";
+import { resolveStrategy } from "./renderers/registry";
+import { usePositionPersistence } from "./hooks/usePositionPersistence";
 import { useReaderDocument } from "./hooks/useReaderDocument";
-
-const TYPE_LABEL: Record<DocumentRow["type"], string> = {
-  pdf: "PDF",
-  docx: "DOCX",
-  md: "Markdown",
-  txt: "TXT",
-};
 
 function goToLibrary() {
   router.dismissTo("/library");
@@ -23,6 +18,16 @@ type Props = {
 
 export function ReaderScreen({ documentId }: Props) {
   const { state, reload } = useReaderDocument(documentId);
+
+  /**
+   * Persistence policy lives here, not in renderers: the strategy reports
+   * progress, this hook decides when it becomes a DB write. documentId is
+   * empty-safe — callbacks are inert until a doc is ready.
+   */
+  const { onPositionChange } = usePositionPersistence(documentId ?? "");
+
+  const strategy =
+    state.status === "ready" ? resolveStrategy(state.document.type) : null;
 
   return (
     <SafeAreaView
@@ -51,16 +56,15 @@ export function ReaderScreen({ documentId }: Props) {
         </View>
       ) : null}
 
-      {state.status === "ready" ? (
-        <View style={styles.body}>
-          <Text style={styles.stateTitle}>{state.document.name}</Text>
-          <Text style={styles.documentType}>
-            {TYPE_LABEL[state.document.type]}
-          </Text>
-          <Text style={styles.stateMessage}>
-            Reader rendering is coming in the next step.
-          </Text>
-        </View>
+      {state.status === "ready" && strategy ? (
+        <strategy.Component
+          uri={resolveDocumentUri(state.document)}
+          restore={{
+            page: state.document.page,
+            percent: state.document.percent,
+          }}
+          onPositionChange={onPositionChange}
+        />
       ) : null}
 
       {state.status === "not-found" ? (

@@ -77,4 +77,16 @@ export const readerStyle = StyleSheet.create({
     letterSpacing: 1,
     opacity: 0.4,
   },
+  rendererWrap: {
+    flex: 1,
+  },
+  contentScroll: {
+    flex: 1,
+  },
+  paragraph: {
+    fontSize: 16,
+    lineHeight: 26,
+    marginBottom: 14,
+    color: "#1a1a1a",
+  },
 });
