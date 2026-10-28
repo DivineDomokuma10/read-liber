@@ -4,6 +4,7 @@ import { getDocumentAsync } from "expo-document-picker";
 
 import type { DocumentRow } from "@/types";
 import { Database } from "@/services/db.services";
+import { ingestToLocal } from "@/services/ingest.service";
 import { ACCEPTED_MIME_TYPE } from "@/data/constant";
 import { toDocumentRow, UnsupportedTypeError } from "@/utils";
 
@@ -64,10 +65,18 @@ export const useDocFilePicker = () => {
         return refreshed;
       }
 
+      /**
+       * Copy to permanent storage before building the row, so newly saved
+       * documents survive OS cache eviction (the picker's copyToCacheDirectory
+       * result is not durable). Best-effort: null -> row stores the cache URI
+       * and the reader's validation degrades gracefully if it goes stale.
+       */
+      const localUri = await ingestToLocal(asset);
+
       let pending: DocumentRow;
 
       try {
-        pending = toDocumentRow(asset);
+        pending = toDocumentRow(asset, localUri);
       } catch (e) {
         if (e instanceof UnsupportedTypeError) {
           setError(`"${asset.name}" isn't a supported type yet.`);

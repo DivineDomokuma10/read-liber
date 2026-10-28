@@ -52,15 +52,20 @@ function generateId(): string {
 /**
  * Build a new DocumentRow from a picker asset.
  * Assigns a fresh UUID, current timestamps, and fresh-read defaults
- * (page 1, 0%, not favorite). `local_uri` stays null until the
- * hybrid copy-fallback (Phase 4) needs it.
+ * (page 1, 0%, not favorite). `localUri` is the permanent in-app copy made by
+ * the ingest service — passed in by the picker after ingest (or null when
+ * ingest failed; the cache-only row then degrades gracefully via the
+ * reader's file-access validation).
  */
-export function toDocumentRow(asset: PickedAsset): DocumentRow {
+export function toDocumentRow(
+  asset: PickedAsset,
+  localUri: string | null = null,
+): DocumentRow {
   const now = Date.now();
   return {
     id: generateId(),
     uri: asset.uri,
-    local_uri: null,
+    local_uri: localUri,
     name: asset.name,
     mime_type: asset.mimeType ?? null,
     size: asset.size ?? null,
