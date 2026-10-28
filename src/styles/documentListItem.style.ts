@@ -23,4 +23,13 @@ export const documentListItemStyle = StyleSheet.create({
     opacity: 0.6,
     marginTop: 2,
   },
+  rowMissing: {
+    opacity: 0.5,
+  },
+  iconMissing: {
+    opacity: 0.5,
+  },
+  nameMissing: {
+    opacity: 0.55,
+  },
 });

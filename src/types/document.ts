@@ -17,6 +17,13 @@ export type Document = {
   page: number;
   percent: number; // 0-100
   favorite: boolean;
+  /**
+   * Whether the stored file is currently readable. Undefined = unverified
+   * (only used by library rows; the reader always verifies).
+   * Rows with a permanent ingested copy are trusted without re-statting —
+   * nothing outside the app can remove them.
+   */
+  available?: boolean;
 };
 
 export type DocumentRow = {

@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Database } from "@/services/db.services";
+import { isFileAccessible, resolveDocumentUri } from "@/utils";
 import type { DocumentRow } from "@/types";
 
 export type ReaderDocumentState =
   | { status: "loading" }
   | { status: "ready"; document: DocumentRow }
   | { status: "not-found" }
+  | { status: "unavailable" }
   | { status: "error"; message: string };
 
 /**
  * Loads one document row for the reader and marks it as recently opened.
+ * The file URI is validated first: a dead cached `file://` copy or a revoked
+ * `content://` grant yields `unavailable`, NOT an error — the document is
+ * known (in the DB) but its bytes are gone.
  * File access/rendering is layered on top of this in later chunks.
  */
 export function useReaderDocument(documentId: string | undefined) {
@@ -34,6 +39,15 @@ export function useReaderDocument(documentId: string | undefined) {
 
         if (!document) {
           setState({ status: "not-found" });
+          return;
+        }
+
+        /**
+         * Validate before touching last_opened — re-opening an unreadable
+         * file should not inflate its recency in the library.
+         */
+        if (!isFileAccessible(resolveDocumentUri(document))) {
+          setState({ status: "unavailable" });
           return;
         }
 

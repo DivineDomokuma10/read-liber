@@ -5,7 +5,7 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
 import { libraryStyle } from "@/styles";
 import type { Document } from "@/types/document";
-import { toDocument } from "@/utils";
+import { isFileAccessible, toDocument } from "@/utils";
 import { Database } from "@/services/db.services";
 
 import { EmptyLibrary } from "@/components/EmptyLibrary";
@@ -24,7 +24,18 @@ export default function Library() {
   const loadDocuments = useCallback(async () => {
     try {
       const rows = await Database.getDocuments();
-      setDocuments(rows.map(toDocument));
+      setDocuments(
+        rows.map((row) => ({
+          ...toDocument(row),
+          /**
+           * Only rows without a permanent ingested copy need a live stat —
+           * the cache/content URI they point to can expire. Ingested copies
+           * live in app-private storage and are trusted without re-statting
+           * (a missing ingested copy surfaces when the document is opened).
+           */
+          available: row.local_uri ? true : isFileAccessible(row.uri),
+        })),
+      );
     } catch (e) {
       console.error(e);
     }

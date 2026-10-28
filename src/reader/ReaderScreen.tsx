@@ -80,6 +80,24 @@ export function ReaderScreen({ documentId }: Props) {
         </View>
       ) : null}
 
+      {state.status === "unavailable" ? (
+        <View style={styles.body}>
+          <Text style={styles.stateTitle}>File unavailable</Text>
+          <Text style={styles.stateMessage}>
+            The document can’t be read on this device right now. Open it again
+            from your files if you still have it.
+          </Text>
+          <Pressable
+            onPress={goToLibrary}
+            style={styles.primaryButton}
+            accessibilityRole="button"
+            accessibilityLabel="Back to library"
+          >
+            <Text style={styles.primaryButtonLabel}>Back to library</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       {state.status === "error" ? (
         <View style={styles.body}>
           <Text style={styles.stateTitle}>Couldn’t open document</Text>
