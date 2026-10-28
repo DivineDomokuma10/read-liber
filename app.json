@@ -42,7 +42,9 @@
       "expo-router",
       "expo-status-bar",
       "expo-sqlite",
-      "expo-file-system"
+      "expo-file-system",
+      "@config-plugins/react-native-blob-util",
+      "@config-plugins/react-native-pdf"
     ],
     "experiments": {
       "typedRoutes": true
