@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Storage from "expo-sqlite/kv-store";
 
 import { readerStyle as styles } from "@/styles";
 import { resolveDocumentUri } from "@/utils";
@@ -11,6 +12,23 @@ import { useReaderDocument } from "./hooks/useReaderDocument";
 
 /** Controls hide again after this much idle time. */
 const CONTROLS_TIMEOUT_MS = 3500;
+
+/** A−/A+ moves between these typography steps; step 1 is the default. */
+const SCALE_STEPS = [0.85, 1, 1.15, 1.3];
+const SCALE_KEY = "readerTextScale";
+
+function readScaleIndex(): number {
+  try {
+    const raw = Storage.getItemSync(SCALE_KEY);
+    const parsed = raw === null ? Number.NaN : parseInt(raw, 10);
+    if (Number.isInteger(parsed) && parsed >= 0 && parsed < SCALE_STEPS.length) {
+      return parsed;
+    }
+  } catch {
+    // No preference stored (or storage down) — default step.
+  }
+  return 1;
+}
 
 function goToLibrary() {
   router.dismissTo("/library");
@@ -25,6 +43,8 @@ export function ReaderScreen({ documentId }: Props) {
 
   /** Clean-read mode: content fills the screen; controls live on tap. */
   const [controlsVisible, setControlsVisible] = useState(true);
+  /** Global typography scale for text strategies, eased through A−/A+. */
+  const [scaleIndex, setScaleIndex] = useState(readScaleIndex);
 
   /**
    * Persistence policy lives here, not in renderers: the strategy reports
@@ -50,6 +70,22 @@ export function ReaderScreen({ documentId }: Props) {
   const handleScrollStart = useCallback(() => {
     setControlsVisible(false);
   }, []);
+
+  const adjustScale = useCallback(
+    (delta: number) => {
+      const next = Math.min(Math.max(scaleIndex + delta, 0), SCALE_STEPS.length - 1);
+      if (next === scaleIndex) {
+        return;
+      }
+      setScaleIndex(next);
+      try {
+        Storage.setItemSync(SCALE_KEY, String(next));
+      } catch {
+        // Preference write failed; scope stays for this session.
+      }
+    },
+    [scaleIndex],
+  );
 
   const strategy =
     state.status === "ready" ? resolveStrategy(state.document.type) : null;
@@ -94,6 +130,7 @@ export function ReaderScreen({ documentId }: Props) {
             onPositionChange={onPositionChange}
             onScrollStart={handleScrollStart}
             onTap={handleContentTap}
+            fontSizeScale={SCALE_STEPS[scaleIndex]}
           />
 
           {controlsVisible ? (
@@ -107,6 +144,47 @@ export function ReaderScreen({ documentId }: Props) {
               >
                 <Text style={styles.controlsButtonLabel}>{"\u2190"}</Text>
               </Pressable>
+              {state.document.type !== "pdf" ? (
+                <>
+                  <Pressable
+                    onPress={() => adjustScale(-1)}
+                    disabled={scaleIndex === 0}
+                    style={styles.controlsButton}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel="Smaller text"
+                  >
+                    <Text
+                      style={[
+                        styles.controlsButtonLabel,
+                        styles.controlsSizeLabel,
+                        scaleIndex === 0 && styles.controlsSizeDisabled,
+                      ]}
+                    >
+                      {"A\u2212"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => adjustScale(1)}
+                    disabled={scaleIndex === SCALE_STEPS.length - 1}
+                    style={styles.controlsButton}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel="Larger text"
+                  >
+                    <Text
+                      style={[
+                        styles.controlsButtonLabel,
+                        styles.controlsSizeLabel,
+                        scaleIndex === SCALE_STEPS.length - 1 &&
+                          styles.controlsSizeDisabled,
+                      ]}
+                    >
+                      {"A+"}
+                    </Text>
+                  </Pressable>
+                </>
+              ) : null}
               <Text style={styles.positionLabel}>
                 {state.document.type === "pdf"
                   ? `Page ${state.document.page}`

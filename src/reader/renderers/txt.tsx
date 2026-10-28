@@ -4,7 +4,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 import type { RendererProps } from "./types";
 import { usePlainText } from "./common/usePlainText";
 import { ReadingScroll } from "./common/ReadingScroll";
-import { readerStyle as styles } from "@/styles";
+import { scaledReaderStyles } from "./common/styleScaling";
 
 /**
  * TXT strategy — progress model: `percent` (scroll position), page pinned
@@ -17,9 +17,14 @@ export function TxtRenderer({
   onPositionChange,
   onTap,
   onScrollStart,
+  fontSizeScale,
 }: RendererProps) {
   const state = usePlainText(uri);
   const ready = state.status === "ready";
+  const styles = useMemo(
+    () => scaledReaderStyles(fontSizeScale ?? 1),
+    [fontSizeScale],
+  );
 
   const paragraphs = useMemo(() => {
     if (state.status !== "ready") {

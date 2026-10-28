@@ -225,6 +225,13 @@ export const readerStyle = StyleSheet.create({
   controlsButtonLabel: {
     fontSize: 22,
   },
+  controlsSizeLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  controlsSizeDisabled: {
+    opacity: 0.25,
+  },
   positionLabel: {
     minWidth: 68,
     textAlign: "center",

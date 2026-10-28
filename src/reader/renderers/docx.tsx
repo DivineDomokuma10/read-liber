@@ -4,7 +4,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 import type { RendererProps } from "./types";
 import { useDocxText } from "./common/useDocxText";
 import { ReadingScroll } from "./common/ReadingScroll";
-import { readerStyle as styles } from "@/styles";
+import { scaledReaderStyles } from "./common/styleScaling";
 
 /**
  * DOCX strategy — V1 trade-off is text-only extraction: real text in
@@ -19,9 +19,14 @@ export function DocxRenderer({
   onPositionChange,
   onTap,
   onScrollStart,
+  fontSizeScale,
 }: RendererProps) {
   const state = useDocxText(uri);
   const ready = state.status === "ready";
+  const styles = useMemo(
+    () => scaledReaderStyles(fontSizeScale ?? 1),
+    [fontSizeScale],
+  );
 
   const paragraphs = useMemo(() => {
     if (state.status !== "ready") {

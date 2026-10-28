@@ -7,7 +7,7 @@ import { parseMarkdown } from "./common/markdown";
 import { InlineText } from "./common/InlineText";
 import { usePlainText } from "./common/usePlainText";
 import { ReadingScroll } from "./common/ReadingScroll";
-import { readerStyle as styles } from "@/styles";
+import { scaledReaderStyles } from "./common/styleScaling";
 
 const HEADING_STYLE: Record<number, string> = {
   1: "mdH1",
@@ -18,20 +18,20 @@ const HEADING_STYLE: Record<number, string> = {
   6: "mdH6",
 };
 
-function renderBlock(block: MdBlock) {
+function renderBlock(block: MdBlock, styles: ReturnType<typeof scaledReaderStyles>) {
   switch (block.kind) {
     case "heading": {
       const styleKey = HEADING_STYLE[block.level];
       return styleKey ? (
         <Text style={styles[styleKey as keyof typeof styles]}>
-          <InlineText spans={block.spans} />
+          <InlineText spans={block.spans} overrideStyles={styles} />
         </Text>
       ) : null;
     }
     case "paragraph":
       return (
         <Text style={styles.paragraph}>
-          <InlineText spans={block.spans} />
+          <InlineText spans={block.spans} overrideStyles={styles} />
         </Text>
       );
     case "listItem":
@@ -44,7 +44,7 @@ function renderBlock(block: MdBlock) {
         >
           <Text style={styles.mdListMarker}>{block.label}</Text>
           <Text style={styles.mdListItemText}>
-            <InlineText spans={block.spans} />
+            <InlineText spans={block.spans} overrideStyles={styles} />
           </Text>
         </View>
       );
@@ -58,7 +58,7 @@ function renderBlock(block: MdBlock) {
     case "quote":
       return (
         <Text style={styles.mdQuote}>
-          <InlineText spans={block.spans} />
+          <InlineText spans={block.spans} overrideStyles={styles} />
         </Text>
       );
     case "rule":
@@ -78,9 +78,14 @@ export function MdRenderer({
   onPositionChange,
   onTap,
   onScrollStart,
+  fontSizeScale,
 }: RendererProps) {
   const state = usePlainText(uri);
   const ready = state.status === "ready";
+  const styles = useMemo(
+    () => scaledReaderStyles(fontSizeScale ?? 1),
+    [fontSizeScale],
+  );
 
   const blocks = useMemo(
     () => (ready ? parseMarkdown(state.text) : []),
@@ -113,7 +118,7 @@ export function MdRenderer({
 
       {ready
         ? blocks.map((block, index) => (
-            <View key={index}>{renderBlock(block)}</View>
+            <View key={index}>{renderBlock(block, styles)}</View>
           ))
         : null}
     </ReadingScroll>
