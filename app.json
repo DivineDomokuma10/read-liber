@@ -91,7 +91,8 @@
         "android.permission.INTERNET",
         "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
         "android.permission.ACCESS_NETWORK_STATE"
-      ]
+      ],
+      "package": "com.divinekodes.readliber"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -103,7 +104,8 @@
       "expo-sqlite",
       "expo-file-system",
       "@config-plugins/react-native-blob-util",
-      "@config-plugins/react-native-pdf"
+      "@config-plugins/react-native-pdf",
+      "./plugins/withAndroidAbi"
     ],
     "experiments": {
       "typedRoutes": true
