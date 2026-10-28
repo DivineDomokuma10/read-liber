@@ -46,6 +46,24 @@ export const useDocFilePicker = () => {
 
       const asset = result.assets[0];
 
+      /**
+       * Dedupe by exact URI (spec:11 recents should not repeat).
+       * Re-opening a known file reuses its row — favorites, reading position,
+       * and the id are preserved — instead of inserting a duplicate.
+       */
+      const existing = await Database.findByUri(asset.uri);
+      if (existing) {
+        await Database.touchLastOpened(existing.id);
+        const refreshed: DocumentRow = {
+          ...existing,
+          last_opened: Date.now(),
+          updated_at: Date.now(),
+        };
+        setLastSaved(refreshed);
+        setError(null);
+        return refreshed;
+      }
+
       let pending: DocumentRow;
 
       try {

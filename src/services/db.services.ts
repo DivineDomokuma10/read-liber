@@ -56,12 +56,17 @@ export class Database {
     );
   }
 
+  /**
+   * Insert a fresh row. Plain INSERT (not INSERT OR REPLACE) so a PK collision
+   * fails loudly instead of silently replacing an existing document's data.
+   * Callers prevent same-URI duplicates via findByUri before reaching this.
+   */
   static async saveDocument(doc: DocumentRow) {
     const db = await openDatabase();
 
     return db.runAsync(
       `
-        INSERT OR REPLACE INTO documents
+        INSERT INTO documents
         (id, uri, local_uri, name, mime_type, size, type, last_opened, page, percent, favorite, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
