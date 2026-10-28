@@ -1,18 +1,26 @@
 const { withGradleProperties } = require("expo/config-plugins");
 
 /**
- * Pins Android Gradle packaging to a single CPU architecture.
+ * Restricts Android Gradle packaging to the CPU architectures that matter.
  *
- * Development APKs otherwise bundle all four ABIs (arm64-v8a, armeabi-v7a,
- * x86, x86_64), quadrupling native-lib weight (Hermes, pdfium, dev client)
- * for a size no device ever uses in full. arm64-v8a covers the target test
- * device; production builds go through an AAB where the Play Store serves
- * per-device slices regardless.
+ * The original dev APK bundled all four ABIs (arm64-v8a, armeabi-v7a, x86,
+ * x86_64) — quadrupling native-lib weight (Hermes, pdfium, dev client) that
+ * no device ever uses in full.
  *
- * Flip TARGET to "arm64-v8a,x86_64" if emulator testing is ever needed
- * (one EAS rebuild).
+ * Primary test device: Samsung Galaxy A02s (Snapdragon 450, Cortex-A53) —
+ * 64-bit-capable SoC that ships with a 32-bit Android userland, so an
+ * arm64-only APK is rejected by its installer.
+ *
+ * armeabi-v7a + arm64-v8a covers that device and any modern phone (64-bit
+ * userlands still accept v7a via compat mode) while x86/x86_64 emulator
+ * libs stay cut off. Flip TARGET_ABI per the note below if ever needed.
+ *
+ * - Emulator testing someday: "arm64-v8a,x86_64" (or all four) — one EAS
+ *   rebuild.
+ * - Production builds are AABs; the Play Store serves per-device slices
+ *   regardless of this pin.
  */
-const TARGET_ABI = "arm64-v8a";
+const TARGET_ABI = "armeabi-v7a,arm64-v8a";
 
 module.exports = function withAndroidAbi(config) {
   return withGradleProperties(config, (cfg) => {
