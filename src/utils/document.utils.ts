@@ -14,13 +14,13 @@ export class UnsupportedTypeError extends Error {
 
 /**
  * Single source of truth: MIME → DocumentType.
- * Legacy `.doc` (application/msword) normalizes to `docx`.
+ * Legacy `.doc` (application/msword) is intentionally unsupported in V1;
+ * it is excluded here so the picker never offers it.
  * `ACCEPTED_MIME_TYPE` (data/constant) is derived from this map,
  * so supporting a new format means changing one place only.
  */
 export const MIME_TO_TYPE: Record<string, DocumentType> = {
   "application/pdf": "pdf",
-  "application/msword": "docx",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
     "docx",
   "text/markdown": "md",

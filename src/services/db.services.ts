@@ -4,9 +4,55 @@ import { DocumentRow } from "@/types";
 export class Database {
   static async getDocuments(): Promise<DocumentRow[]> {
     const db = await openDatabase();
-
     return db.getAllAsync<DocumentRow>(
       `SELECT * FROM documents ORDER BY last_opened DESC`,
+    );
+  }
+
+  static async getDocument(id: string): Promise<DocumentRow | null> {
+    const db = await openDatabase();
+    return db.getFirstAsync<DocumentRow>(
+      `SELECT * FROM documents WHERE id = ?`,
+      id,
+    );
+  }
+
+  static async findByUri(uri: string): Promise<DocumentRow | null> {
+    const db = await openDatabase();
+    return db.getFirstAsync<DocumentRow>(
+      `SELECT * FROM documents WHERE uri = ? ORDER BY last_opened DESC LIMIT 1`,
+      uri,
+    );
+  }
+
+  static async updateReadingPosition(id: string, page: number, percent: number) {
+    const db = await openDatabase();
+    const now = Date.now();
+
+    return db.runAsync(
+      `UPDATE documents
+       SET page = ?, percent = ?, last_opened = ?, updated_at = ?
+       WHERE id = ?`,
+      [page, percent, now, now, id],
+    );
+  }
+
+  static async updateLocalUri(id: string, localUri: string) {
+    const db = await openDatabase();
+
+    return db.runAsync(
+      `UPDATE documents SET local_uri = ?, updated_at = ? WHERE id = ?`,
+      [localUri, Date.now(), id],
+    );
+  }
+
+  static async touchLastOpened(id: string) {
+    const db = await openDatabase();
+    const now = Date.now();
+
+    return db.runAsync(
+      `UPDATE documents SET last_opened = ?, updated_at = ? WHERE id = ?`,
+      [now, now, id],
     );
   }
 

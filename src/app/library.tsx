@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
@@ -40,11 +40,12 @@ export default function Library() {
     const saved = await onFilePick();
     if (saved) {
       await loadDocuments();
+      router.push({ pathname: "/reader", params: { id: saved.id } });
     }
   };
 
   const handlePressDocument = (doc: Document) => {
-    console.log("TODO (Phase 4): open reader for", doc.id);
+    router.push({ pathname: "/reader", params: { id: doc.id } });
   };
 
   return (

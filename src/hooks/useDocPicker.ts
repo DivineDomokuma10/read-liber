@@ -14,12 +14,15 @@ export const useDocFilePicker = () => {
   const persist = async (row: DocumentRow): Promise<boolean> => {
     try {
       const result = await Database.saveDocument(row);
+
       if (result.changes === 1) {
         setLastSaved(row);
         setError(null);
         return true;
       }
+
       setError("Could not save document. Please try again.");
+
       return false;
     } catch (e) {
       console.error(e);

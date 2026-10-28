@@ -2,6 +2,7 @@ import { openDatabase } from "./client";
 
 export const createDocSchema = async () => {
   const db = await openDatabase();
+  
   return db.execAsync(
     `
     CREATE TABLE IF NOT EXISTS documents (

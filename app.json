@@ -23,6 +23,12 @@
           "action": "MAIN",
           "category": ["LAUNCHER"],
           "autoLaunch": true
+        },
+        {
+        "action": "VIEW",
+        "category": ["DEFAULT", "BROWSABLE"],
+        "data": [{ "scheme": "content" }],
+        "type": ["application/pdf", "text/plain", "text/markdown", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
         }
       ],
       "launchMode": "singleTask",
