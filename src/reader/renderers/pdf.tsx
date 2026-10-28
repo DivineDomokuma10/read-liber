@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Text, View } from "react-native";
 import Pdf from "react-native-pdf";
 
@@ -13,10 +13,19 @@ import { readerStyle as styles } from "@/styles";
  * library row ("PDF · Page 37 · 37%"). Pinch + double-tap zoom come from
  * the native view; the strategy wires page persistence only.
  */
-export function PdfRenderer({ uri, restore, onPositionChange }: RendererProps) {
+export function PdfRenderer({
+  uri,
+  restore,
+  onPositionChange,
+  onTap,
+  onScrollStart,
+}: RendererProps) {
   const [error, setError] = useState<string | null>(null);
   // Initial page is a mount-time decision; later changes come from the user.
   const [initialPage] = useState(() => Math.max(Math.round(restore.page) || 1, 1));
+  // The first onPageChanged is often the initial layout's page settle, not a
+  // user gesture — skip it before treating page moves as navigation.
+  const pageEventCount = useRef(0);
 
   if (error) {
     return (
@@ -36,7 +45,14 @@ export function PdfRenderer({ uri, restore, onPositionChange }: RendererProps) {
         spacing={8}
         style={{ flex: 1, backgroundColor: "#ffffff" }}
         onPageChanged={(page, total) => {
+          pageEventCount.current += 1;
           onPositionChange(page, total > 0 ? Math.round((page / total) * 100) : 0);
+          if (pageEventCount.current > 1) {
+            onScrollStart?.();
+          }
+        }}
+        onPageSingleTap={() => {
+          onTap?.();
         }}
         onError={(e: unknown) => {
           const message =

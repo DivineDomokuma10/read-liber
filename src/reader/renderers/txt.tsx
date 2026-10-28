@@ -11,7 +11,13 @@ import { readerStyle as styles } from "@/styles";
  * to 1. Paragraph blocks instead of one giant <Text> so large files never
  * stall layout on a single node.
  */
-export function TxtRenderer({ uri, restore, onPositionChange }: RendererProps) {
+export function TxtRenderer({
+  uri,
+  restore,
+  onPositionChange,
+  onTap,
+  onScrollStart,
+}: RendererProps) {
   const state = usePlainText(uri);
   const ready = state.status === "ready";
 
@@ -29,6 +35,8 @@ export function TxtRenderer({ uri, restore, onPositionChange }: RendererProps) {
     <ReadingScroll
       restore={restore}
       onPositionChange={onPositionChange}
+      onTap={onTap}
+      onScrollStart={onScrollStart}
       ready={ready}
     >
       {state.status === "loading" ? <ActivityIndicator /> : null}

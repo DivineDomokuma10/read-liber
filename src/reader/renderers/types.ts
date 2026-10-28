@@ -22,6 +22,24 @@ export type RendererProps = {
   uri: string;
   restore: ReaderPosition;
   onPositionChange: (page: number, percent: number) => void;
+  /**
+   * Fired for a genuine single tap ON the content (scroll, fling, pinch and
+   * multi-touch do not qualify) — the screen uses it to toggle reading
+   * controls. Optional: strategies that can't discriminate taps omit it.
+   */
+  onTap?: () => void;
+  /**
+   * Fired when the user actively navigates content (scroll gesture drag or
+   * momentum for text strategies; page moves for the PDF strategy). The
+   * screen collapses reading controls on it to stay in clean-read mode.
+   */
+  onScrollStart?: () => void;
+  /**
+   * Text strategies render their typography scaled by this factor
+   * (user A-/A+ preference). PDF and other native renderers ignore it —
+   * their zoom is the document's native scale.
+   */
+  fontSizeScale?: number;
 };
 
 export interface RendererStrategy {

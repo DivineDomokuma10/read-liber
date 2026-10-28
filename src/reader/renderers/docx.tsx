@@ -13,7 +13,13 @@ import { readerStyle as styles } from "@/styles";
  * (percent), so position persistence behaves identically across text
  * formats.
  */
-export function DocxRenderer({ uri, restore, onPositionChange }: RendererProps) {
+export function DocxRenderer({
+  uri,
+  restore,
+  onPositionChange,
+  onTap,
+  onScrollStart,
+}: RendererProps) {
   const state = useDocxText(uri);
   const ready = state.status === "ready";
 
@@ -31,6 +37,8 @@ export function DocxRenderer({ uri, restore, onPositionChange }: RendererProps) 
     <ReadingScroll
       restore={restore}
       onPositionChange={onPositionChange}
+      onTap={onTap}
+      onScrollStart={onScrollStart}
       ready={ready}
     >
       {state.status === "loading" ? <ActivityIndicator /> : null}

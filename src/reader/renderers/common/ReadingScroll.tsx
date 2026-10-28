@@ -1,5 +1,6 @@
 import { ReactNode, useCallback, useRef } from "react";
 import {
+  Pressable,
   ScrollView,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -13,6 +14,18 @@ import { readerStyle as styles } from "@/styles";
 type ReadingScrollProps = {
   restore: ReaderPosition;
   onPositionChange: (page: number, percent: number) => void;
+  /**
+   * Fired for a user-initiated scroll gesture (begin-drag and momentum),
+   * NOT for the programmatic restore scroll — the screen auto-hides reading
+   * controls on this signal.
+   */
+  onScrollStart?: () => void;
+  /**
+   * Fired for a tap on the content. RN's touch system discriminates the
+   * gesture for us: drags/flings turn into scroll events, so a resolved
+   * "press" here is a genuine tap.
+   */
+  onTap?: () => void;
   /** True once the strategy has real content to show; gates the ScrollView. */
   ready: boolean;
   children: ReactNode;
@@ -30,6 +43,8 @@ type ReadingScrollProps = {
 export function ReadingScroll({
   restore,
   onPositionChange,
+  onScrollStart,
+  onTap,
   ready,
   children,
 }: ReadingScrollProps) {
@@ -77,18 +92,31 @@ export function ReadingScroll({
     [onPositionChange],
   );
 
+  const signalScrollStart = useCallback(() => {
+    onScrollStart?.();
+  }, [onScrollStart]);
+
+  const content = onTap ? (
+    <Pressable onPress={onTap} style={styles.contentPadding}>
+      {children}
+    </Pressable>
+  ) : (
+    <View style={styles.contentPadding}>{children}</View>
+  );
+
   return (
     <View style={styles.rendererWrap} onLayout={handleLayout}>
       {ready ? (
         <ScrollView
           ref={scrollRef}
           style={styles.contentScroll}
-          contentContainerStyle={styles.contentPadding}
           onScroll={handleScroll}
           onContentSizeChange={handleContentSizeChange}
           scrollEventThrottle={64}
+          onScrollBeginDrag={signalScrollStart}
+          onMomentumScrollBegin={signalScrollStart}
         >
-          {children}
+          {content}
         </ScrollView>
       ) : (
         children

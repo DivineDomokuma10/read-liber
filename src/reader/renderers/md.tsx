@@ -72,7 +72,13 @@ function renderBlock(block: MdBlock) {
  * Indented lists become flat rows with a fixed indent step; nested
  * constructs like tables and images render as literal text (spec:23 scope).
  */
-export function MdRenderer({ uri, restore, onPositionChange }: RendererProps) {
+export function MdRenderer({
+  uri,
+  restore,
+  onPositionChange,
+  onTap,
+  onScrollStart,
+}: RendererProps) {
   const state = usePlainText(uri);
   const ready = state.status === "ready";
 
@@ -85,6 +91,8 @@ export function MdRenderer({ uri, restore, onPositionChange }: RendererProps) {
     <ReadingScroll
       restore={restore}
       onPositionChange={onPositionChange}
+      onTap={onTap}
+      onScrollStart={onScrollStart}
       ready={ready}
     >
       {state.status === "loading" ? <ActivityIndicator /> : null}
