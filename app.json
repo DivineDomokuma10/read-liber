@@ -20,31 +20,78 @@
       "predictiveBackGestureEnabled": false,
       "intentFilters": [
         {
-        "action": "VIEW",
-        "category": ["DEFAULT", "BROWSABLE"],
-        "data": [{ "scheme": "content", "mimeType": "application/pdf" }]
+          "action": "VIEW",
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "content",
+              "mimeType": "application/pdf"
+            }
+          ]
         },
         {
-        "action": "VIEW",
-        "category": ["DEFAULT", "BROWSABLE"],
-        "data": [{ "scheme": "content", "mimeType": "text/plain" }]
+          "action": "VIEW",
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "content",
+              "mimeType": "text/plain"
+            }
+          ]
         },
         {
-        "action": "VIEW",
-        "category": ["DEFAULT", "BROWSABLE"],
-        "data": [{ "scheme": "content", "mimeType": "text/markdown" }]
+          "action": "VIEW",
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "content",
+              "mimeType": "text/markdown"
+            }
+          ]
         },
         {
-        "action": "VIEW",
-        "category": ["DEFAULT", "BROWSABLE"],
-        "data": [{ "scheme": "content", "mimeType": "application/msword" }]
+          "action": "VIEW",
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "content",
+              "mimeType": "application/msword"
+            }
+          ]
         },
         {
-        "action": "VIEW",
-        "category": ["DEFAULT", "BROWSABLE"],
-        "data": [{ "scheme": "content", "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }]
+          "action": "VIEW",
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "content",
+              "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+          ]
         }
       ],
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -60,6 +107,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d49aede3-eeba-4324-a621-debb4cf5aa79"
+      }
     }
   }
 }
