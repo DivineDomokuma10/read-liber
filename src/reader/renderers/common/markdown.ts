@@ -35,18 +35,23 @@ const QUOTE = /^> ?(.*)$/;
 const RULE = /^\s{0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/;
 const INDENT_WIDTH = 2;
 
-/** `code` runs first so markers inside code never get treated as syntax. */
-const INLINE_CODE = /`([^`\n]+)`/;
-const LINK = /\[([^\]\n]+)\]\(([^()\s]+)\)/;
-const STRONG_STAR = /\*\*([^*\n]+)\*\*/;
-const STRONG_UNDER = /__([^_\n]+)__/;
-const EM_STAR = /\*([^*\n]+)\*/;
-const EM_UNDER = /(^|[^A-Za-z0-9_])_([^_\n]+)_(?![A-Za-z0-9])/;
+/**
+ * `code` runs first so markers inside code never get treated as syntax.
+ * Every regex here is global: parseInlinePass loops on exec() and relies on
+ * lastIndex advancing — a non-global regex would return the same first
+ * match forever (JS-thread freeze on open).
+ */
+const INLINE_CODE = /`([^`\n]+)`/g;
+const LINK = /\[([^\]\n]+)\]\(([^()\s]+)\)/g;
+const STRONG_STAR = /\*\*([^*\n]+)\*\*/g;
+const STRONG_UNDER = /__([^_\n]+)__/g;
+const EM_STAR = /\*([^*\n]+)\*/g;
+const EM_UNDER = /(^|[^A-Za-z0-9_])_([^_\n]+)_(?![A-Za-z0-9])/g;
 
 function parseInlinePass(
   tokens: InlineSpan[],
   regex: RegExp,
-  map: (...groups: string[]) => InlineSpan[],
+  map: (match: RegExpExecArray) => InlineSpan[],
 ): InlineSpan[] {
   const out: InlineSpan[] = [];
 
@@ -62,11 +67,19 @@ function parseInlinePass(
     let match = regex.exec(plain);
 
     while (match) {
-      if (match.index > cursor) {
+      if (cursor < match.index) {
         out.push({ type: "text", text: plain.slice(cursor, match.index) });
       }
-      out.push(...map(...match));
+      out.push(...map(match));
       cursor = match.index + match[0].length;
+      if (match[0].length === 0) {
+        // Zero-length match with a global regex never advances lastIndex on
+        // its own — bump manually and stop at end of input.
+        regex.lastIndex += 1;
+        if (regex.lastIndex > plain.length) {
+          break;
+        }
+      }
       match = regex.exec(plain);
     }
 

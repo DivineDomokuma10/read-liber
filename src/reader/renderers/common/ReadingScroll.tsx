@@ -32,8 +32,8 @@ type ReadingScrollProps = {
 };
 
 /**
- * Scroll shell for every percent-based strategy (TXT, MD, and DOCX-text via
- * the TXT pipeline). Owns the scroll restore + percent reporting entirely:
+ * Scroll shell for every percent-based strategy (TXT, MD, and the structured
+ * DOCX block pipeline). Owns the scroll restore + percent reporting entirely:
  * strategies pass content and never touch refs.
  *
  * Restore applies once per mount, riding on measurement: percent needs both

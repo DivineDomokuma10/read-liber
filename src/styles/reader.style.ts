@@ -197,6 +197,13 @@ export const readerStyle = StyleSheet.create({
     backgroundColor: "#c8c8c8",
     marginVertical: 16,
   },
+  docxUnsupported: {
+    fontSize: 14,
+    lineHeight: 22,
+    marginBottom: 14,
+    opacity: 0.55,
+    color: "#1a1a1a",
+  },
   controlsBar: {
     position: "absolute",
     bottom: 16,

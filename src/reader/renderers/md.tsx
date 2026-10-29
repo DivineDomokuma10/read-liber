@@ -18,10 +18,14 @@ const HEADING_STYLE: Record<number, string> = {
   6: "mdH6",
 };
 
-function renderBlock(block: MdBlock, styles: ReturnType<typeof scaledReaderStyles>) {
+function renderBlock(
+  block: MdBlock,
+  styles: ReturnType<typeof scaledReaderStyles>,
+) {
   switch (block.kind) {
     case "heading": {
       const styleKey = HEADING_STYLE[block.level];
+
       return styleKey ? (
         <Text style={styles[styleKey as keyof typeof styles]}>
           <InlineText spans={block.spans} overrideStyles={styles} />

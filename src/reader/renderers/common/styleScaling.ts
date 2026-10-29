@@ -20,6 +20,7 @@ const TEXT_KEYS = [
   "mdQuote",
   "mdCodeBlock",
   "spanCode",
+  "docxUnsupported",
 ] as const;
 
 type TextKey = (typeof TEXT_KEYS)[number];
