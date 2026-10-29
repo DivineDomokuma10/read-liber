@@ -204,6 +204,50 @@ export const readerStyle = StyleSheet.create({
     opacity: 0.55,
     color: "#1a1a1a",
   },
+  tblGrid: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#d0d0d0",
+    borderRadius: 4,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  tblScrollX: {
+    marginBottom: 16,
+  },
+  tblRow: {
+    flexDirection: "row",
+  },
+  tblRowDivider: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#d0d0d0",
+  },
+  tblCell: {
+    flex: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    minHeight: 32,
+    justifyContent: "center",
+  },
+  tblCellDivider: {
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: "#d0d0d0",
+  },
+  tblFixedCell: {
+    width: 116,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  tblCellText: {
+    fontSize: 14,
+    lineHeight: 19,
+    color: "#1a1a1a",
+  },
+  tblHeaderText: {
+    fontWeight: "700",
+  },
+  tblHeaderRow: {
+    backgroundColor: "#fafafa",
+  },
   controlsBar: {
     position: "absolute",
     bottom: 16,

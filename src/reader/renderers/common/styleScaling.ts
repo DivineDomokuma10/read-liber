@@ -21,6 +21,7 @@ const TEXT_KEYS = [
   "mdCodeBlock",
   "spanCode",
   "docxUnsupported",
+  "tblCellText",
 ] as const;
 
 type TextKey = (typeof TEXT_KEYS)[number];
