@@ -224,6 +224,25 @@ export const readerStyle = StyleSheet.create({
     opacity: 0.6,
     color: "#1a1a1a",
   },
+  viewerOverlay: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  viewerCloseTouch: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+  },
+  viewerCloseLabel: {
+    fontSize: 20,
+    color: "#fff",
+  },
   tblGrid: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "#d0d0d0",

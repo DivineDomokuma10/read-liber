@@ -1,5 +1,13 @@
-import { useMemo, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 import type { RendererProps } from "./types";
 import type { DocxBlock } from "./common/docx/blocks";
@@ -19,6 +27,75 @@ const HEADING_STYLE: Record<number, string> = {
 /** Reserved height until the image's true aspect ratio is known on load. */
 const IMAGE_PLACEHOLDER_HEIGHT = 200;
 const IMAGE_MAX_HEIGHT = 480;
+const VIEWER_IMAGE_MAX_HEIGHT = 640;
+
+/**
+ * Fullscreen image viewer: dark modal, contain-fit image, pinch where the
+ * platform ScrollView supports it (iOS), ✕ + hardware back to dismiss.
+ */
+function DocxImageViewer({
+  uri,
+  caption,
+  onClose,
+  styles,
+}: {
+  uri: string;
+  caption: string | null;
+  onClose: () => void;
+  styles: ReturnType<typeof scaledReaderStyles>;
+}) {
+  const [ratio, setRatio] = useState<number | null>(null);
+
+  return (
+    <Modal
+      visible
+      transparent={false}
+      animationType="fade"
+      accessibilityLabel={`Image viewer${caption ? `: ${caption}` : ""}`}
+      onRequestClose={onClose}
+    >
+      <View style={styles.viewerOverlay}>
+        <ScrollView
+          style={{ flex: 1 }}
+          maximumZoomScale={3}
+          minimumZoomScale={1}
+          centerContent
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        >
+          <Image
+            source={{ uri }}
+            style={{
+              width: "100%",
+              height: ratio === null ? IMAGE_PLACEHOLDER_HEIGHT : undefined,
+              aspectRatio: ratio === null ? undefined : 1 / Math.max(ratio, 0.01),
+              maxHeight: VIEWER_IMAGE_MAX_HEIGHT,
+            }}
+            resizeMode="contain"
+            onLoad={(e) => {
+              const { width, height: imgHeight } = e.nativeEvent.source ?? {};
+              if (imgHeight && width) {
+                setRatio(imgHeight / width);
+              }
+            }}
+          />
+        </ScrollView>
+
+        {caption ? <Text style={styles.docxCaption}>{caption}</Text> : null}
+
+        <Pressable
+          onPress={onClose}
+          style={styles.viewerCloseTouch}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Close image viewer"
+        >
+          <Text style={styles.viewerCloseLabel}>{"\u2715"}</Text>
+        </Pressable>
+      </View>
+    </Modal>
+  );
+}
 
 /**
  * Inline image with aspect-ratio fit: reserved height up front (no scroll
@@ -29,10 +106,12 @@ const IMAGE_MAX_HEIGHT = 480;
 function DocxImage({
   uri,
   caption,
+  onOpen,
   styles,
 }: {
   uri: string;
   caption: string | null;
+  onOpen: () => void;
   styles: ReturnType<typeof scaledReaderStyles>;
 }) {
   const [ratio, setRatio] = useState<number | null>(null);
@@ -50,22 +129,24 @@ function DocxImage({
 
   return (
     <View style={styles.docxImageWrap}>
-      <Image
-        source={{ uri }}
-        style={[
-          styles.docxImage,
-          ratio !== null && styles.docxImageLoaded,
-          ratio !== null && { height },
-        ]}
-        resizeMode="contain"
-        onLoad={(e) => {
-          const { width, height: imgHeight } = e.nativeEvent.source ?? {};
-          if (imgHeight && width) {
-            setRatio(imgHeight / width);
-          }
-        }}
-        onError={() => setFailed(true)}
-      />
+      <Pressable onPress={onOpen} accessibilityRole="imagebutton" accessibilityLabel="View image fullscreen">
+        <Image
+          source={{ uri }}
+          style={[
+            styles.docxImage,
+            ratio !== null && styles.docxImageLoaded,
+            ratio !== null && { height },
+          ]}
+          resizeMode="contain"
+          onLoad={(e) => {
+            const { width, height: imgHeight } = e.nativeEvent.source ?? {};
+            if (imgHeight && width) {
+              setRatio(imgHeight / width);
+            }
+          }}
+          onError={() => setFailed(true)}
+        />
+      </Pressable>
       {caption ? (
         <Text style={styles.docxCaption}>{caption}</Text>
       ) : null}
@@ -144,6 +225,7 @@ function renderBlock(
   block: DocxBlock,
   styles: ReturnType<typeof scaledReaderStyles>,
   mediaUris: Map<string, string>,
+  onImageOpen: (uri: string, caption: string | null) => void,
 ) {
   switch (block.kind) {
     case "paragraph":
@@ -165,6 +247,7 @@ function renderBlock(
           key={uri}
           uri={uri}
           caption={block.caption}
+          onOpen={() => onImageOpen(uri, block.caption)}
           styles={styles}
         />
       ) : (
@@ -201,6 +284,15 @@ export function DocxRenderer({
     [fontSizeScale],
   );
 
+  const [viewer, setViewer] = useState<{
+    uri: string;
+    caption: string | null;
+  } | null>(null);
+
+  const onImageOpen = useCallback((uri: string, caption: string | null) => {
+    setViewer({ uri, caption });
+  }, []);
+
   const blocks = useMemo(
     () => (ready ? state.document.blocks : []),
     [ready, state],
@@ -235,10 +327,20 @@ export function DocxRenderer({
       {ready
         ? blocks.map((block, index) => (
             <View key={index}>
-              {renderBlock(block, styles, state.document.mediaUris)}
+              {renderBlock(block, styles, state.document.mediaUris, onImageOpen)}
             </View>
           ))
         : null}
+
+      {viewer ? (
+        <DocxImageViewer
+          key={viewer.uri}
+          uri={viewer.uri}
+          caption={viewer.caption}
+          onClose={() => setViewer(null)}
+          styles={styles}
+        />
+      ) : null}
     </ReadingScroll>
   );
 }
