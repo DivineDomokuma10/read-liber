@@ -429,6 +429,14 @@ export function DocxRenderer({
         </View>
       ) : null}
 
+      {ready && state.document.skippedImages > 0 ? (
+        <Text style={styles.docxUnsupported}>
+          {state.document.skippedImages} oversized image
+          {state.document.skippedImages === 1 ? "" : "s"} skipped to keep the
+          document readable.
+        </Text>
+      ) : null}
+
       {ready
         ? blocks.map((block, index) => (
             <View key={index}>
