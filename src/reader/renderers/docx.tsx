@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
 
 import type { RendererProps } from "./types";
 import type { DocxBlock } from "./common/docx/blocks";
@@ -15,6 +15,63 @@ const HEADING_STYLE: Record<number, string> = {
   5: "mdH5",
   6: "mdH6",
 };
+
+/** Reserved height until the image's true aspect ratio is known on load. */
+const IMAGE_PLACEHOLDER_HEIGHT = 200;
+const IMAGE_MAX_HEIGHT = 480;
+
+/**
+ * Inline image with aspect-ratio fit: reserved height up front (no scroll
+ * jumps while loading), measured ratio on load, contain-fit within viewport
+ * width and a max display height. A failed image degrades to text, never
+ * an error state — the document keeps reading.
+ */
+function DocxImage({
+  uri,
+  caption,
+  styles,
+}: {
+  uri: string;
+  caption: string | null;
+  styles: ReturnType<typeof scaledReaderStyles>;
+}) {
+  const [ratio, setRatio] = useState<number | null>(null);
+  const [failed, setFailed] = useState(false);
+  // uri swaps re-mount via key in the JSX below — state resets for free.
+
+  if (failed) {
+    return <Text style={styles.docxUnsupported}>[ image unavailable ]</Text>;
+  }
+
+  const height =
+    ratio === null
+      ? IMAGE_PLACEHOLDER_HEIGHT
+      : Math.min(Math.round(ratio * 10000) / 10, IMAGE_MAX_HEIGHT);
+
+  return (
+    <View style={styles.docxImageWrap}>
+      <Image
+        source={{ uri }}
+        style={[
+          styles.docxImage,
+          ratio !== null && styles.docxImageLoaded,
+          ratio !== null && { height },
+        ]}
+        resizeMode="contain"
+        onLoad={(e) => {
+          const { width, height: imgHeight } = e.nativeEvent.source ?? {};
+          if (imgHeight && width) {
+            setRatio(imgHeight / width);
+          }
+        }}
+        onError={() => setFailed(true)}
+      />
+      {caption ? (
+        <Text style={styles.docxCaption}>{caption}</Text>
+      ) : null}
+    </View>
+  );
+}
 
 /**
  * DOCX table layout, sized for phones:
@@ -83,7 +140,11 @@ function DocxTable({
   return <View style={styles.tblGrid}>{rows(false)}</View>;
 }
 
-function renderBlock(block: DocxBlock, styles: ReturnType<typeof scaledReaderStyles>) {
+function renderBlock(
+  block: DocxBlock,
+  styles: ReturnType<typeof scaledReaderStyles>,
+  mediaUris: Map<string, string>,
+) {
   switch (block.kind) {
     case "paragraph":
       return <Text style={styles.paragraph}>{block.text}</Text>;
@@ -97,8 +158,21 @@ function renderBlock(block: DocxBlock, styles: ReturnType<typeof scaledReaderSty
     }
     case "table":
       return <DocxTable table={block} styles={styles} />;
-    case "image":
-      return <Text style={styles.docxUnsupported}>[ image ]</Text>;
+    case "image": {
+      const uri = mediaUris.get(block.rid);
+      return uri ? (
+        <DocxImage
+          key={uri}
+          uri={uri}
+          caption={block.caption}
+          styles={styles}
+        />
+      ) : (
+        <Text style={styles.docxUnsupported}>
+          {block.caption ? `[ image unavailable — ${block.caption} ]` : "[ image unavailable ]"}
+        </Text>
+      );
+    }
     case "chart":
       return <Text style={styles.docxUnsupported}>[ chart ]</Text>;
     case "placeholder":
@@ -160,7 +234,9 @@ export function DocxRenderer({
 
       {ready
         ? blocks.map((block, index) => (
-            <View key={index}>{renderBlock(block, styles)}</View>
+            <View key={index}>
+              {renderBlock(block, styles, state.document.mediaUris)}
+            </View>
           ))
         : null}
     </ReadingScroll>

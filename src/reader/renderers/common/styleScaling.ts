@@ -21,6 +21,7 @@ const TEXT_KEYS = [
   "mdCodeBlock",
   "spanCode",
   "docxUnsupported",
+  "docxCaption",
   "tblCellText",
 ] as const;
 

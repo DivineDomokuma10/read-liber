@@ -204,6 +204,26 @@ export const readerStyle = StyleSheet.create({
     opacity: 0.55,
     color: "#1a1a1a",
   },
+  docxImageWrap: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  docxImage: {
+    width: "100%",
+    height: 200,
+    backgroundColor: "#f5f5f5",
+  },
+  docxImageLoaded: {
+    backgroundColor: undefined,
+  },
+  docxCaption: {
+    marginTop: -6,
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: "center",
+    opacity: 0.6,
+    color: "#1a1a1a",
+  },
   tblGrid: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "#d0d0d0",
