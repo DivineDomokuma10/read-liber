@@ -23,6 +23,10 @@ const TEXT_KEYS = [
   "docxUnsupported",
   "docxCaption",
   "tblCellText",
+  "docxChartTitle",
+  "docxChartLabel",
+  "docxChartBarLabel",
+  "docxChartNote",
 ] as const;
 
 type TextKey = (typeof TEXT_KEYS)[number];

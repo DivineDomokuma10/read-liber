@@ -11,6 +11,8 @@ import {
 
 import type { RendererProps } from "./types";
 import type { DocxBlock } from "./common/docx/blocks";
+import type { ParsedChart } from "./common/docx/charts";
+import { parseChartXml } from "./common/docx/charts";
 import { useDocxDocument } from "./common/useDocxDocument";
 import { ReadingScroll } from "./common/ReadingScroll";
 import { scaledReaderStyles } from "./common/styleScaling";
@@ -155,6 +157,97 @@ function DocxImage({
 }
 
 /**
+ * DOCX chart as data (spec decision): title + pure-View bar visualization
+ * when the chart family is bar/line, plus the full data table so 100% of
+ * the chart's content stays readable without graphics dependencies.
+ */
+function DocxChart({
+  chart,
+  caption,
+  styles,
+}: {
+  chart: ParsedChart;
+  caption: string | null;
+  styles: ReturnType<typeof scaledReaderStyles>;
+}) {
+  const max = Math.max(
+    0,
+    ...chart.series.flatMap((s) => s.values.filter((v) => Number.isFinite(v))),
+  );
+  const maxValue = max > 0 ? max : 1;
+  const rowCount = Math.max(
+    chart.categories.length,
+    ...chart.series.map((s) => s.values.length),
+    1,
+  );
+  const seriesNames = chart.series
+    .map((s) => s.name)
+    .filter((name): name is string => name !== null);
+
+  const tableRows = Array.from({ length: rowCount }, (_, i) => [
+    chart.categories[i] ?? `#${i + 1}`,
+    ...chart.series.map((s) => {
+      const v = s.values[i];
+      return v === undefined || !Number.isFinite(v) ? "" : String(v);
+    }),
+  ]);
+
+  return (
+    <View style={chart.kind === "bar" ? styles.docxChart : undefined}>
+      {chart.title ? (
+        <Text style={styles.docxChartTitle}>{chart.title}</Text>
+      ) : null}
+
+      {chart.kind === "bar"
+        ? Array.from({ length: rowCount }, (_, i) => (
+            <View
+              key={i}
+              style={i === 0 ? undefined : styles.docxChartBarRow}
+            >
+              <Text style={styles.docxChartBarLabel} numberOfLines={1}>
+                {chart.categories[i] ?? `#${i + 1}`}
+              </Text>
+              <View style={styles.docxChartBarTrack}>
+                {chart.series.map((s, si) => {
+                  const v = s.values[i];
+                  if (v === undefined || !Number.isFinite(v) || v <= 0) {
+                    return null;
+                  }
+                  return (
+                    <View
+                      key={si}
+                      style={[
+                        styles.docxChartBarSegment,
+                        { width: `${(v / maxValue) * 100}%` },
+                      ]}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+          ))
+        : null}
+
+      <Text style={styles.docxChartNote}>
+        {seriesNames.length > 0
+          ? `Data (series: ${seriesNames.join(", ")}):`
+          : "Data:"}
+      </Text>
+      <DocxTable
+        table={{
+          kind: "table",
+          header: chart.kind === "other",
+          rows: tableRows,
+        }}
+        styles={styles}
+      />
+
+      {caption ? <Text style={styles.docxCaption}>{caption}</Text> : null}
+    </View>
+  );
+}
+
+/**
  * DOCX table layout, sized for phones:
  *
  * - ≤4 columns: equal-flex grid inside the reading flow — text wraps, no
@@ -225,6 +318,7 @@ function renderBlock(
   block: DocxBlock,
   styles: ReturnType<typeof scaledReaderStyles>,
   mediaUris: Map<string, string>,
+  charts: Map<string, string>,
   onImageOpen: (uri: string, caption: string | null) => void,
 ) {
   switch (block.kind) {
@@ -256,8 +350,19 @@ function renderBlock(
         </Text>
       );
     }
-    case "chart":
-      return <Text style={styles.docxUnsupported}>[ chart ]</Text>;
+    case "chart": {
+      const chartXml = charts.get(block.rid);
+      const chart = chartXml ? parseChartXml(chartXml) : null;
+      return chart ? (
+        <DocxChart
+          chart={chart}
+          caption={block.caption}
+          styles={styles}
+        />
+      ) : (
+        <Text style={styles.docxUnsupported}>— Chart not viewable —</Text>
+      );
+    }
     case "placeholder":
       return <Text style={styles.docxUnsupported}>— {block.label} —</Text>;
   }
@@ -327,7 +432,13 @@ export function DocxRenderer({
       {ready
         ? blocks.map((block, index) => (
             <View key={index}>
-              {renderBlock(block, styles, state.document.mediaUris, onImageOpen)}
+              {renderBlock(
+                block,
+                styles,
+                state.document.mediaUris,
+                state.document.charts,
+                onImageOpen,
+              )}
             </View>
           ))
         : null}
