@@ -4,17 +4,19 @@ import { File } from "expo-file-system";
 import {
   DocxFormatError,
   extractDocxDocument,
-  type DocxDocument,
 } from "./docx/extract";
+import { stageDocxMedia, type PreparedDocx } from "./docx/media";
 
 export type DocxDocState =
   | { status: "loading" }
-  | { status: "ready"; document: DocxDocument }
+  | { status: "ready"; document: PreparedDocx }
   | { status: "empty" }
   | { status: "error"; message: string };
 
 /**
- * DOCX loader: bytes → two-pass extraction → typed block model.
+ * DOCX loader: bytes → two-pass extraction → block model, then media
+ * staged to `file://` URIs in app cache so image bytes never sit in the
+ * JS heap while rendering.
  *
  * Results are keyed to the uri that produced them (same pattern as
  * usePlainText) so a slow read of a previous document can never leak into
@@ -58,12 +60,17 @@ export function useDocxDocument(uri: string): DocxDocState {
           return;
         }
 
+        const prepared = stageDocxMedia(document);
+        if (cancelled) {
+          return;
+        }
+
         setResult({
           uri,
           state:
-            document.blocks.length === 0
+            prepared.blocks.length === 0
               ? { status: "empty" }
-              : { status: "ready", document },
+              : { status: "ready", document: prepared },
         });
       } catch (e) {
         if (cancelled) {
