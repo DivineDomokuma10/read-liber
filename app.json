@@ -29,6 +29,14 @@
             {
               "scheme": "content",
               "mimeType": "application/pdf"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "application/octet-stream"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "*/*"
             }
           ]
         },
@@ -42,6 +50,14 @@
             {
               "scheme": "content",
               "mimeType": "text/plain"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "application/octet-stream"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "*/*"
             }
           ]
         },
@@ -55,6 +71,14 @@
             {
               "scheme": "content",
               "mimeType": "text/markdown"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "application/octet-stream"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "*/*"
             }
           ]
         },
@@ -68,6 +92,14 @@
             {
               "scheme": "content",
               "mimeType": "application/msword"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "application/octet-stream"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "*/*"
             }
           ]
         },
@@ -81,6 +113,14 @@
             {
               "scheme": "content",
               "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "application/octet-stream"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "*/*"
             }
           ]
         }
