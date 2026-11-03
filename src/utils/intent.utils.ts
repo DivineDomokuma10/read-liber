@@ -1,8 +1,9 @@
-import { Directory, File, Paths } from "expo-file-system";
+import { Directory, File, FileMode, Paths } from "expo-file-system";
 import ReactNativeBlobUtil from "react-native-blob-util";
 
 import { sanitizeFilename } from "@/services/ingest.service";
 import type { PickedAsset } from "@/types/document";
+import { MIME_TO_TYPE } from "./document.utils";
 
 /**
  * Cache staging area for files received via VIEW intents ("Open with" from
@@ -16,12 +17,13 @@ const SHARED_CACHE_DIR_NAME = "shared";
  *
  * MIME type cannot be recovered from a content:// URL string — the intent's
  * MIME travels with the Intent object, which the URL event does not expose.
- * WhatsApp preserves the original filename in its content URIs
- * (`content://.../document.pdf`), so the extension is the practical signal.
+ * Expo File's `type` property asks Android's ContentResolver for that metadata;
+ * the extension remains a fallback for providers that encode it in the URI.
  *
- * Unknown/omitted extensions yield an asset without a mimeType; downstream
- * `toDocumentRow()` then rejects it via UnsupportedTypeError with the same
- * friendly alert the picker flow uses.
+ * WhatsApp commonly exposes only an opaque UUID (`.../item/<uuid>`), so PDF
+ * and DOCX signatures provide a final bounded fallback when its provider MIME
+ * is generic. Unknown content still reaches the existing unsupported-type
+ * alert rather than being guessed unsafely.
  */
 const EXTENSION_TO_MIME: Record<string, string> = {
   ".pdf": "application/pdf",
@@ -31,6 +33,19 @@ const EXTENSION_TO_MIME: Record<string, string> = {
   ".txt": "text/plain",
   ".text": "text/plain",
 };
+
+const MIME_TO_EXTENSION: Record<string, string> = {
+  "application/pdf": ".pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    ".docx",
+  "text/markdown": ".md",
+  "text/plain": ".txt",
+};
+
+const SIGNATURE_SCAN_BYTES = 1024 * 1024;
+const PDF_HEADER_SCAN_BYTES = 1024;
+const PDF_SIGNATURE = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]);
+const DOCX_DOCUMENT_PART = new TextEncoder().encode("word/document.xml");
 
 /**
  * True only for URLs that carry a document payload from the OS
@@ -65,6 +80,94 @@ function mimeFromFilename(name: string): string | undefined {
   return EXTENSION_TO_MIME[ext];
 }
 
+/** Ignore generic/unsupported provider values; only app-supported MIME wins. */
+function supportedMime(mimeType: string | null | undefined): string | undefined {
+  const normalized = mimeType?.split(";", 1)[0]?.trim().toLowerCase();
+  return normalized && MIME_TO_TYPE[normalized] ? normalized : undefined;
+}
+
+function nameWithResolvedExtension(name: string, mimeType: string | undefined) {
+  if (!mimeType || mimeFromFilename(name)) {
+    return name;
+  }
+
+  const extension = MIME_TO_EXTENSION[mimeType];
+  return extension ? `${name}${extension}` : name;
+}
+
+function containsBytes(haystack: Uint8Array, needle: Uint8Array): boolean {
+  if (needle.length === 0 || needle.length > haystack.length) {
+    return false;
+  }
+
+  outer: for (let i = 0; i <= haystack.length - needle.length; i += 1) {
+    for (let j = 0; j < needle.length; j += 1) {
+      if (haystack[i + j] !== needle[j]) {
+        continue outer;
+      }
+    }
+    return true;
+  }
+
+  return false;
+}
+
+function startsLikeZip(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === 0x50 &&
+    bytes[1] === 0x4b &&
+    ((bytes[2] === 0x03 && bytes[3] === 0x04) ||
+      (bytes[2] === 0x05 && bytes[3] === 0x06) ||
+      (bytes[2] === 0x07 && bytes[3] === 0x08))
+  );
+}
+
+/**
+ * Read at most 2 MiB (archive head + tail) to identify formats whose provider
+ * MIME and filename are both opaque. Never loads a potentially large document
+ * into JS merely to classify it.
+ */
+function mimeFromContent(file: File): string | undefined {
+  const handle = file.open(FileMode.ReadOnly);
+
+  try {
+    const size = handle.size ?? file.size;
+    const prefixLength = Math.min(size, SIGNATURE_SCAN_BYTES);
+    const prefix = handle.readBytes(prefixLength);
+
+    if (
+      containsBytes(
+        prefix.subarray(0, Math.min(prefix.length, PDF_HEADER_SCAN_BYTES)),
+        PDF_SIGNATURE,
+      )
+    ) {
+      return "application/pdf";
+    }
+
+    if (!startsLikeZip(prefix)) {
+      return undefined;
+    }
+
+    if (containsBytes(prefix, DOCX_DOCUMENT_PART)) {
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    }
+
+    if (size > prefixLength) {
+      const tailStart = Math.max(0, size - SIGNATURE_SCAN_BYTES);
+      handle.offset = tailStart;
+      const tail = handle.readBytes(size - tailStart);
+      if (containsBytes(tail, DOCX_DOCUMENT_PART)) {
+        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      }
+    }
+
+    return undefined;
+  } finally {
+    handle.close();
+  }
+}
+
 function shortId(): string {
   const cryptoRef = globalThis.crypto;
   if (typeof cryptoRef?.randomUUID === "function") {
@@ -86,31 +189,31 @@ export async function resolveIntentAsset(
   url: string,
 ): Promise<PickedAsset | null> {
   try {
-    let filename: string | undefined;
+    const source = new File(url);
+    let providerMime: string | undefined;
     let size: number | undefined;
 
     /**
-     * Some providers reject stat(); fall back to guessing the name from the
-     * URI itself and let the copy decide whether the file is real.
+     * Android content providers can expose MIME and size even when their URI
+     * contains only an opaque identifier. Metadata access is best-effort: the
+     * subsequent stream copy remains the source-of-truth access check.
      */
     try {
-      const stat = await ReactNativeBlobUtil.fs.stat(url);
-      if (stat && stat.type === "file") {
-        filename = stat.filename;
-        size = stat.size;
-      }
+      providerMime = source.type || undefined;
+      size = source.size || undefined;
     } catch {
-      // stat unsupported for this provider — continue with the URI-based name
+      // Provider metadata unavailable — use URI/content fallbacks below.
     }
 
-    const name = sanitizeFilename(filename ?? guessNameFromUri(url));
+    const initialName = sanitizeFilename(guessNameFromUri(url));
+    let mimeType = supportedMime(providerMime) ?? mimeFromFilename(initialName);
 
     const dir = new Directory(Paths.cache, SHARED_CACHE_DIR_NAME);
     if (!dir.exists) {
       dir.create();
     }
 
-    const dest = new File(dir, `shared-${shortId()}-${name}`);
+    const dest = new File(dir, `shared-${shortId()}-${initialName}`);
     await ReactNativeBlobUtil.fs.cp(url, dest.uri);
 
     const copied = new File(dest.uri);
@@ -118,10 +221,13 @@ export async function resolveIntentAsset(
       return null;
     }
 
+    mimeType ??= mimeFromContent(copied);
+    const name = nameWithResolvedExtension(initialName, mimeType);
+
     return {
       uri: dest.uri,
       name,
-      mimeType: mimeFromFilename(name),
+      mimeType,
       size: size ?? copied.size,
     };
   } catch (e) {
