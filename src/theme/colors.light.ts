@@ -9,6 +9,7 @@ export const lightPalette: ThemePalette = {
   },
   brand: {
     primary: "#34463c",
+    onPrimary: "#ffffff",
     secondary: "#789483",
     soft: "#dbe5dd",
   },

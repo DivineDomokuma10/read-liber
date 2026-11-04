@@ -17,6 +17,9 @@ export const glassShadow: ViewStyle = {
   elevation: 2,
 };
 
+/** DS §9 primary-action shadow color (`rgba(39, 62, 49, 0.2)`). */
+export const primaryActionShadowColor = "#273e31";
+
 /** Shared DS §7 glass fill, border, and native shadow. */
 export function glassSurface(colors: ThemePalette): ViewStyle {
   return {

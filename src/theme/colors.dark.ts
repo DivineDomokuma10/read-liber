@@ -9,6 +9,7 @@ export const darkPalette: ThemePalette = {
   },
   brand: {
     primary: "#dbe5dd",
+    onPrimary: "#202521",
     secondary: "#8eaa98",
     soft: "#2d3931",
   },

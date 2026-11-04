@@ -23,6 +23,7 @@ import { Database } from "@/services/db.services";
 
 import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { DocumentListItem } from "@/components/DocumentListItem";
+import { PrimaryButton } from "@/components/PrimaryButton";
 import { useDocFilePicker } from "@/hooks";
 
 type LibraryState =
@@ -375,14 +376,13 @@ export default function Library() {
         <View style={styles.stateContainer}>
           <Text style={styles.stateTitle}>Couldn’t load library</Text>
           <Text style={styles.stateMessage}>{state.message}</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
+          <PrimaryButton
+            label="Retry"
+            style={styles.primaryStateButton}
             onPress={() => void loadDocuments(true)}
             accessibilityRole="button"
             accessibilityLabel="Retry loading library"
-          >
-            <Text style={styles.retryButtonLabel}>Retry</Text>
-          </TouchableOpacity>
+          />
         </View>
       ) : (
         <>

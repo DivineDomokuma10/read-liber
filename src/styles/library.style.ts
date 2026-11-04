@@ -125,6 +125,10 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       fontSize: 15,
       fontWeight: "600",
     },
+    primaryStateButton: {
+      minWidth: 112,
+      marginTop: 24,
+    },
     secondaryStateButton: {
       minWidth: 144,
       minHeight: interaction.preferredTarget,

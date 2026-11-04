@@ -13,6 +13,7 @@ export type ThemePalette = {
   };
   brand: {
     primary: string;
+    onPrimary: string;
     secondary: string;
     soft: string;
   };
