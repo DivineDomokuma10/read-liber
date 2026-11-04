@@ -73,6 +73,7 @@ export function ReaderScreen({ documentId }: Props) {
   const [favoritePending, setFavoritePending] = useState(false);
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
   const [controlsProgress] = useState(() => new Animated.Value(1));
+  const [contentEntry] = useState(() => new Animated.Value(0));
   const [livePosition, setLivePosition] = useState<{
     documentId: string;
     page: number;
@@ -110,6 +111,26 @@ export function ReaderScreen({ documentId }: Props) {
     animation.start();
     return () => animation.stop();
   }, [controlsProgress, controlsVisible, reduceMotion]);
+
+  useEffect(() => {
+    if (state.status !== "ready") {
+      contentEntry.setValue(0);
+      return;
+    }
+    if (reduceMotion) {
+      contentEntry.setValue(1);
+      return;
+    }
+
+    const animation = Animated.timing(contentEntry, {
+      toValue: 1,
+      duration: motion.entry,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [contentEntry, reduceMotion, state.status]);
 
   /** Tap on content: flip clean mode, and restart the idle hide timer. */
   const handleContentTap = useCallback(() => {
@@ -263,17 +284,34 @@ export function ReaderScreen({ documentId }: Props) {
 
       {state.status === "ready" && strategy ? (
         <>
-          <strategy.Component
-            uri={resolveDocumentUri(state.document)}
-            restore={{
-              page: state.document.page,
-              percent: state.document.percent,
-            }}
-            onPositionChange={handlePositionChange}
-            onScrollStart={handleScrollStart}
-            onTap={handleContentTap}
-            fontSizeScale={SCALE_STEPS[scaleIndex]}
-          />
+          <Animated.View
+            style={[
+              styles.rendererWrap,
+              {
+                opacity: contentEntry,
+                transform: [
+                  {
+                    translateY: contentEntry.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [4, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <strategy.Component
+              uri={resolveDocumentUri(state.document)}
+              restore={{
+                page: state.document.page,
+                percent: state.document.percent,
+              }}
+              onPositionChange={handlePositionChange}
+              onScrollStart={handleScrollStart}
+              onTap={handleContentTap}
+              fontSizeScale={SCALE_STEPS[scaleIndex]}
+            />
+          </Animated.View>
 
           <Animated.View
             pointerEvents={controlsVisible ? "box-none" : "none"}

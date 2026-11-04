@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Animated,
   Easing,
@@ -41,6 +41,7 @@ export function DocumentListItem({
   const styles = useStyles(makeDocumentListItemStyle);
   const reduceMotion = useReducedMotion();
   const [pressedValue] = useState(() => new Animated.Value(0));
+  const [entryValue] = useState(() => new Animated.Value(0));
   const missing = document.available === false;
   const typeLabel = TYPE_LABEL[document.type];
   const positionLabel = formatReadingPosition(
@@ -53,6 +54,22 @@ export function DocumentListItem({
   const accessibilityDetail = missing
     ? `${typeLabel}, file unavailable`
     : `${typeLabel}, ${positionLabel}, ${lastOpenedLabel}, ${Math.round(progress)} percent`;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      entryValue.setValue(1);
+      return;
+    }
+
+    const animation = Animated.timing(entryValue, {
+      toValue: 1,
+      duration: motion.entry,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [entryValue, reduceMotion]);
 
   const animateTo = (value: number) => {
     if (reduceMotion) {
@@ -74,7 +91,14 @@ export function DocumentListItem({
         styles.row,
         missing && styles.rowMissing,
         {
+          opacity: entryValue,
           transform: [
+            {
+              translateY: entryValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [6, 0],
+              }),
+            },
             {
               scale: pressedValue.interpolate({
                 inputRange: [0, 1],
