@@ -4,7 +4,7 @@ import Pdf from "react-native-pdf";
 
 import type { RendererProps } from "./types";
 import { makeReaderStyle } from "@/styles";
-import { useStyles } from "@/theme/useTheme";
+import { useStyles, useTheme } from "@/theme/useTheme";
 
 /**
  * PDF strategy — native pdfium rendering (react-native-pdf), which is why
@@ -21,6 +21,7 @@ export function PdfRenderer({
   onTap,
   onScrollStart,
 }: RendererProps) {
+  const { colors } = useTheme();
   const styles = useStyles(makeReaderStyle);
   const [error, setError] = useState<string | null>(null);
   // Initial page is a mount-time decision; later changes come from the user.
@@ -45,7 +46,7 @@ export function PdfRenderer({
         page={initialPage}
         fitPolicy={0}
         spacing={8}
-        style={{ flex: 1, backgroundColor: "#ffffff" }}
+        style={{ flex: 1, backgroundColor: colors.readingSurface }}
         onPageChanged={(page, total) => {
           pageEventCount.current += 1;
           onPositionChange(page, total > 0 ? Math.round((page / total) * 100) : 0);

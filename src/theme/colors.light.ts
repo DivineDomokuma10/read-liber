@@ -27,6 +27,7 @@ export const lightPalette: ThemePalette = {
     sideGlowOpacity: 0.46,
   },
   readingSurface: "#fbf9f2",
+  readingText: "#34322e",
   glass: {
     background: "rgba(255, 255, 255, 0.58)",
     backgroundHover: "rgba(255, 255, 255, 0.72)",

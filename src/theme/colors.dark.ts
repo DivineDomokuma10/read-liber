@@ -27,6 +27,7 @@ export const darkPalette: ThemePalette = {
     sideGlowOpacity: 0.45,
   },
   readingSurface: "#20231f",
+  readingText: "#ebede8",
   glass: {
     background: "rgba(37, 44, 38, 0.58)",
     backgroundHover: "rgba(44, 53, 46, 0.72)",

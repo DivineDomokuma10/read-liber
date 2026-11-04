@@ -31,6 +31,7 @@ export type ThemePalette = {
     sideGlowOpacity: number;
   };
   readingSurface: string;
+  readingText: string;
   glass: {
     background: string;
     backgroundHover: string;

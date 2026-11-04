@@ -1,6 +1,13 @@
 import { StyleSheet } from "react-native";
 
 import type { ThemePalette } from "@/theme";
+import {
+  fonts,
+  interaction,
+  radius,
+  tracking,
+  typography,
+} from "@/theme";
 
 /**
  * Reader container, floating chrome, and reading typography styles.
@@ -42,16 +49,18 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       paddingHorizontal: 24,
     },
     stateTitle: {
+      color: colors.text.primary,
+      fontFamily: fonts.ui.bold,
       fontSize: 20,
-      fontWeight: "700",
       textAlign: "center",
     },
     stateMessage: {
       marginTop: 8,
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.regular,
       fontSize: 15,
       lineHeight: 22,
       textAlign: "center",
-      opacity: 0.6,
     },
     primaryButton: {
       marginTop: 24,
@@ -59,15 +68,13 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       paddingHorizontal: 20,
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 22,
-      // Primary CTA fill (DS §9); full restyle lands in DS-7.
+      borderRadius: radius.button,
       backgroundColor: colors.brand.primary,
     },
     primaryButtonLabel: {
+      color: colors.brand.onPrimary,
+      fontFamily: fonts.ui.semiBold,
       fontSize: 15,
-      fontWeight: "600",
-      // Inverted-on-dark token arrives with DS-7.
-      color: "#fff",
     },
     secondaryButton: {
       marginTop: 12,
@@ -77,9 +84,9 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       justifyContent: "center",
     },
     secondaryButtonLabel: {
-      fontSize: 15,
-      fontWeight: "600",
       color: colors.text.primary,
+      fontFamily: fonts.ui.semiBold,
+      fontSize: 15,
     },
     documentType: {
       marginTop: 8,
@@ -95,115 +102,125 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       flex: 1,
     },
     paragraph: {
-      fontSize: 16,
-      lineHeight: 26,
-      marginBottom: 14,
-      color: colors.text.primary,
+      color: colors.readingText,
+      fontFamily: fonts.reading.regular,
+      fontSize: typography.readingBody.size,
+      lineHeight:
+        typography.readingBody.size * typography.readingBody.lineHeightFactor,
+      marginBottom: 19,
     },
     contentPadding: {
-      padding: 20,
+      paddingTop: 104,
+      paddingHorizontal: 33,
+      paddingBottom: 64,
     },
     mdH1: {
-      fontSize: 26,
-      fontWeight: "700",
-      lineHeight: 32,
-      marginTop: 20,
-      marginBottom: 10,
-      color: colors.text.primary,
+      color: colors.readingText,
+      fontFamily: fonts.reading.medium,
+      fontSize: typography.readingTitle.size,
+      lineHeight:
+        typography.readingTitle.size * typography.readingTitle.lineHeightFactor,
+      letterSpacing: typography.readingTitle.size * tracking.readingTitle,
+      marginTop: 0,
+      marginBottom: 28,
     },
     mdH2: {
-      fontSize: 22,
-      fontWeight: "700",
-      lineHeight: 28,
-      marginTop: 18,
-      marginBottom: 8,
-      color: colors.text.primary,
+      color: colors.readingText,
+      fontFamily: fonts.reading.semiBold,
+      fontSize: 24,
+      lineHeight: 33,
+      marginTop: 24,
+      marginBottom: 12,
     },
     mdH3: {
-      fontSize: 19,
-      fontWeight: "600",
-      lineHeight: 25,
-      marginTop: 16,
-      marginBottom: 8,
-      color: colors.text.primary,
+      color: colors.readingText,
+      fontFamily: fonts.reading.semiBold,
+      fontSize: typography.readingSection.size,
+      lineHeight:
+        typography.readingSection.size *
+        typography.readingSection.lineHeightFactor,
+      marginTop: 20,
+      marginBottom: 10,
     },
     mdH4: {
+      color: colors.readingText,
+      fontFamily: fonts.reading.semiBold,
       fontSize: 17,
-      fontWeight: "600",
-      lineHeight: 23,
-      marginTop: 14,
-      marginBottom: 6,
-      color: colors.text.primary,
+      lineHeight: 24,
+      marginTop: 18,
+      marginBottom: 8,
     },
     mdH5: {
+      color: colors.readingText,
+      fontFamily: fonts.reading.semiBold,
       fontSize: 16,
-      fontWeight: "600",
       lineHeight: 22,
-      marginTop: 12,
+      marginTop: 16,
       marginBottom: 6,
-      color: colors.text.primary,
     },
     mdH6: {
+      color: colors.text.secondary,
+      fontFamily: fonts.reading.semiBold,
       fontSize: 15,
-      fontWeight: "600",
       lineHeight: 21,
       marginTop: 12,
       marginBottom: 6,
-      opacity: 0.8,
-      color: colors.text.primary,
     },
     spanStrong: {
-      fontWeight: "700",
+      fontFamily: fonts.reading.semiBold,
     },
     spanEm: {
-      fontStyle: "italic",
+      fontFamily: fonts.reading.regularItalic,
     },
     spanCode: {
       fontFamily: "monospace",
-      // Inline code tone is restyled in DS-16.
-      backgroundColor: "#f2f2f2",
+      backgroundColor: colors.background.secondary,
       fontSize: 15,
     },
     spanLink: {
       textDecorationLine: "underline",
-      color: colors.text.primary,
+      color: colors.brand.secondary,
     },
     mdListRow: {
       flexDirection: "row",
       marginBottom: 8,
     },
     mdListMarker: {
-      fontSize: 16,
-      lineHeight: 26,
+      color: colors.readingText,
+      fontFamily: fonts.reading.regular,
+      fontSize: typography.readingBody.size,
+      lineHeight:
+        typography.readingBody.size * typography.readingBody.lineHeightFactor,
       width: 26,
-      color: colors.text.primary,
     },
     mdListItemText: {
       flex: 1,
-      fontSize: 16,
-      lineHeight: 26,
-      color: colors.text.primary,
+      color: colors.readingText,
+      fontFamily: fonts.reading.regular,
+      fontSize: typography.readingBody.size,
+      lineHeight:
+        typography.readingBody.size * typography.readingBody.lineHeightFactor,
     },
     mdCodeBlock: {
       fontFamily: "monospace",
       fontSize: 14,
       lineHeight: 22,
-      // Code block tone is restyled in DS-16.
-      backgroundColor: "#f5f5f5",
+      backgroundColor: colors.background.secondary,
       padding: 12,
-      borderRadius: 6,
-      marginBottom: 14,
-      color: colors.text.primary,
+      borderRadius: radius.small,
+      marginBottom: 19,
+      color: colors.readingText,
     },
     mdQuote: {
       borderLeftWidth: 3,
-      borderLeftColor: colors.divider,
+      borderLeftColor: colors.brand.secondary,
       paddingLeft: 12,
-      fontSize: 16,
-      lineHeight: 26,
-      marginBottom: 14,
-      opacity: 0.75,
-      color: colors.text.primary,
+      color: colors.readingText,
+      fontFamily: fonts.reading.regular,
+      fontSize: typography.readingBody.size,
+      lineHeight:
+        typography.readingBody.size * typography.readingBody.lineHeightFactor,
+      marginBottom: 19,
     },
     mdRule: {
       height: StyleSheet.hairlineWidth,
@@ -211,11 +228,11 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       marginVertical: 16,
     },
     docxUnsupported: {
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.regular,
       fontSize: 14,
       lineHeight: 22,
       marginBottom: 14,
-      opacity: 0.55,
-      color: colors.text.primary,
     },
     docxImageWrap: {
       alignItems: "center",
@@ -224,18 +241,18 @@ export const makeReaderStyle = (colors: ThemePalette) =>
     docxImage: {
       width: "100%",
       height: 200,
-      backgroundColor: "#f5f5f5",
+      backgroundColor: colors.background.secondary,
     },
     docxImageLoaded: {
       backgroundColor: undefined,
     },
     docxCaption: {
       marginTop: -6,
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.regular,
       fontSize: 13,
       lineHeight: 18,
       textAlign: "center",
-      opacity: 0.6,
-      color: colors.text.primary,
     },
     viewerOverlay: {
       flex: 1,
@@ -259,21 +276,22 @@ export const makeReaderStyle = (colors: ThemePalette) =>
     },
     docxChart: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "#d0d0d0",
-      borderRadius: 4,
+      borderColor: colors.divider,
+      borderRadius: radius.small,
       padding: 10,
       marginBottom: 16,
     },
     docxChartTitle: {
+      color: colors.readingText,
+      fontFamily: fonts.reading.semiBold,
       fontSize: 15,
-      fontWeight: "600",
       marginBottom: 8,
-      color: colors.text.primary,
     },
     docxChartLabel: {
+      color: colors.readingText,
+      fontFamily: fonts.reading.regular,
       fontSize: 12,
       lineHeight: 16,
-      color: colors.text.primary,
     },
     docxChartBarRow: {
       flexDirection: "row",
@@ -282,36 +300,36 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       marginTop: 4,
     },
     docxChartBarLabel: {
+      color: colors.readingText,
+      fontFamily: fonts.ui.regular,
       fontSize: 12,
       lineHeight: 16,
       width: 84,
-      color: colors.text.primary,
-      opacity: 0.8,
     },
     docxChartBarTrack: {
       flex: 1,
       height: 6,
       borderRadius: 3,
-      backgroundColor: "#ececec",
+      backgroundColor: colors.divider,
       overflow: "hidden",
       flexDirection: "row",
     },
     docxChartBarSegment: {
       height: 6,
       borderRadius: 3,
-      backgroundColor: "#2e2e2e",
+      backgroundColor: colors.brand.secondary,
     },
     docxChartNote: {
       marginTop: 8,
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.regular,
       fontSize: 12,
       lineHeight: 16,
-      opacity: 0.55,
-      color: colors.text.primary,
     },
     tblGrid: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "#d0d0d0",
-      borderRadius: 4,
+      borderColor: colors.divider,
+      borderRadius: radius.small,
       overflow: "hidden",
       marginBottom: 16,
     },
@@ -323,7 +341,7 @@ export const makeReaderStyle = (colors: ThemePalette) =>
     },
     tblRowDivider: {
       borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: "#d0d0d0",
+      borderTopColor: colors.divider,
     },
     tblCell: {
       flex: 1,
@@ -334,7 +352,7 @@ export const makeReaderStyle = (colors: ThemePalette) =>
     },
     tblCellDivider: {
       borderLeftWidth: StyleSheet.hairlineWidth,
-      borderLeftColor: "#d0d0d0",
+      borderLeftColor: colors.divider,
     },
     tblFixedCell: {
       width: 116,
@@ -342,15 +360,16 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       paddingVertical: 6,
     },
     tblCellText: {
+      color: colors.readingText,
+      fontFamily: fonts.reading.regular,
       fontSize: 14,
       lineHeight: 19,
-      color: colors.text.primary,
     },
     tblHeaderText: {
-      fontWeight: "700",
+      fontFamily: fonts.reading.semiBold,
     },
     tblHeaderRow: {
-      backgroundColor: "#fafafa",
+      backgroundColor: colors.brand.soft,
     },
     controlsBar: {
       position: "absolute",
@@ -372,8 +391,8 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       elevation: 4,
     },
     controlsButton: {
-      width: 44,
-      height: 44,
+      width: interaction.preferredTarget,
+      height: interaction.preferredTarget,
       alignItems: "center",
       justifyContent: "center",
     },
