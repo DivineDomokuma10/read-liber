@@ -1,11 +1,13 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import type { Document } from "@/types/document";
 import { documentListItemStyle as styles } from "@/styles";
-import { formatLastOpened } from "@/utils";
+import { formatLastOpened, formatReadingPosition } from "@/utils";
 
 type Props = {
   document: Document;
   onPress: (document: Document) => void;
+  onFavoriteChange: (document: Document, favorite: boolean) => void;
+  favoritePending?: boolean;
 };
 
 const TYPE_ICON: Record<Document["type"], string> = {
@@ -23,33 +25,79 @@ const TYPE_LABEL: Record<Document["type"], string> = {
 };
 
 /** One row of the library list — spec:11. List, not cards. */
-export function DocumentListItem({ document, onPress }: Props) {
+export function DocumentListItem({
+  document,
+  onPress,
+  onFavoriteChange,
+  favoritePending = false,
+}: Props) {
   const missing = document.available === false;
+  const typeLabel = TYPE_LABEL[document.type];
+  const positionLabel = formatReadingPosition(
+    document.type,
+    document.page,
+    document.percent,
+  );
+  const lastOpenedLabel = formatLastOpened(document.lastOpened);
+  const detailLabel = missing
+    ? `${typeLabel} · File unavailable`
+    : `${typeLabel} · ${positionLabel} · ${lastOpenedLabel}`;
+  const accessibilityDetail = missing
+    ? `${typeLabel}, file unavailable`
+    : `${typeLabel}, ${positionLabel}, ${lastOpenedLabel}`;
 
   return (
-    <TouchableOpacity
-      style={[styles.row, missing && styles.rowMissing]}
-      onPress={() => onPress(document)}
-      accessibilityRole="button"
-      accessibilityLabel={
-        "Open " + document.name + (missing ? ", file unavailable" : "")
-      }
-      activeOpacity={missing ? 1 : undefined}
-    >
-      <Text style={[styles.icon, missing && styles.iconMissing]}>
-        {TYPE_ICON[document.type]}
-      </Text>
-      <View style={styles.meta}>
-        <Text style={[styles.name, missing && styles.nameMissing]} numberOfLines={1}>
-          {document.name}
+    <View style={styles.row}>
+      <TouchableOpacity
+        style={[styles.openArea, missing && styles.rowMissing]}
+        onPress={() => onPress(document)}
+        accessibilityRole="button"
+        accessibilityLabel={`Open ${document.name}, ${accessibilityDetail}`}
+        activeOpacity={missing ? 1 : undefined}
+      >
+        <Text style={[styles.icon, missing && styles.iconMissing]}>
+          {TYPE_ICON[document.type]}
         </Text>
-        <Text style={[styles.detail, missing && styles.nameMissing]}>
-          {missing
-            ? `${TYPE_LABEL[document.type]} · File unavailable`
-            : `${TYPE_LABEL[document.type]} · Page ${document.page} · ${formatLastOpened(document.lastOpened)}`}
+        <View style={styles.meta}>
+          <Text
+            style={[styles.name, missing && styles.nameMissing]}
+            numberOfLines={1}
+          >
+            {document.name}
+          </Text>
+          <Text style={[styles.detail, missing && styles.nameMissing]}>
+            {detailLabel}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.favoriteButton,
+          favoritePending && styles.favoriteButtonPending,
+        ]}
+        onPress={() => onFavoriteChange(document, !document.favorite)}
+        disabled={favoritePending}
+        accessibilityRole="togglebutton"
+        accessibilityLabel={
+          document.favorite
+            ? `Remove ${document.name} from favorites`
+            : `Add ${document.name} to favorites`
+        }
+        accessibilityState={{
+          checked: document.favorite,
+          disabled: favoritePending,
+        }}
+      >
+        <Text
+          style={[
+            styles.favoriteLabel,
+            document.favorite && styles.favoriteLabelSelected,
+          ]}
+        >
+          {document.favorite ? "\u2605" : "\u2606"}
         </Text>
-      </View>
-      {/* TODO (Phase 3): favorite star toggle goes here. */}
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 }

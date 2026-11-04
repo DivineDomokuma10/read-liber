@@ -4,8 +4,14 @@ export const documentListItemStyle = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  openArea: {
+    flex: 1,
+    minHeight: 64,
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingLeft: 16,
     gap: 12,
   },
   icon: {
@@ -31,5 +37,23 @@ export const documentListItemStyle = StyleSheet.create({
   },
   nameMissing: {
     opacity: 0.55,
+  },
+  favoriteButton: {
+    width: 56,
+    height: 56,
+    marginRight: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  favoriteButtonPending: {
+    opacity: 0.45,
+  },
+  favoriteLabel: {
+    color: "#555",
+    fontSize: 26,
+    lineHeight: 30,
+  },
+  favoriteLabelSelected: {
+    color: "#8A4B00",
   },
 });
