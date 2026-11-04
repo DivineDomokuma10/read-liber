@@ -2,12 +2,13 @@ import { ReactNode } from "react";
 import { Text } from "react-native";
 
 import type { InlineSpan } from "./markdown";
-import { readerStyle as styles } from "@/styles";
+import { makeReaderStyle, type ReaderStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 type InlineTextProps = {
   spans: InlineSpan[];
-  /** Scaled style sheet variant (see scaledReaderStyles); defaults to static. */
-  overrideStyles?: typeof styles;
+  /** Scaled style sheet variant (see useScaledReaderStyles); defaults to base. */
+  overrideStyles?: ReaderStyle;
 };
 
 /**
@@ -15,6 +16,7 @@ type InlineTextProps = {
  * requires for mixed styling (bold/italic/code/link inside one line).
  */
 export function InlineText({ spans, overrideStyles }: InlineTextProps): ReactNode {
+  const styles = useStyles(makeReaderStyle);
   const resolved = overrideStyles ?? styles;
   return spans.map((span, index) => {
     switch (span.type) {

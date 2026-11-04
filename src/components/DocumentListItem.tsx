@@ -1,6 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import type { Document } from "@/types/document";
-import { documentListItemStyle as styles } from "@/styles";
+import { makeDocumentListItemStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 import { formatLastOpened, formatReadingPosition } from "@/utils";
 
 type Props = {
@@ -31,6 +32,7 @@ export function DocumentListItem({
   onFavoriteChange,
   favoritePending = false,
 }: Props) {
+  const styles = useStyles(makeDocumentListItemStyle);
   const missing = document.available === false;
   const typeLabel = TYPE_LABEL[document.type];
   const positionLabel = formatReadingPosition(

@@ -1,7 +1,8 @@
 import { Text, View } from "react-native";
 
 import type { RendererProps } from "./types";
-import { readerStyle as styles } from "@/styles";
+import { makeReaderStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 /**
  * Null-object strategy for formats whose real renderer hasn't landed yet.
@@ -10,6 +11,7 @@ import { readerStyle as styles } from "@/styles";
  * registry without touching this file or the screen again.
  */
 export function PlaceholderRenderer(_props: RendererProps) {
+  const styles = useStyles(makeReaderStyle);
   return (
     <View style={styles.body}>
       <Text style={styles.stateTitle}>Reader view coming soon</Text>

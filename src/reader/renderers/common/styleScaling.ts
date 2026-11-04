@@ -1,6 +1,9 @@
+import { useMemo } from "react";
 import type { TextStyle } from "react-native";
 
-import { readerStyle } from "@/styles";
+import { makeReaderStyle, type ReaderStyle } from "@/styles";
+import { useTheme } from "@/theme/useTheme";
+import type { ThemePalette } from "@/theme";
 
 /**
  * Typography keys that respond to the reader's global text-size preference.
@@ -54,14 +57,16 @@ function scaleTextStyle(style: TextStyle, scale: number): TextStyle {
   return scaled;
 }
 
-export type ReaderStyles = typeof readerStyle;
-
 /**
- * Returns the reader style sheet with typography scaled by `scale` (1 = the
- * static sheet). Recomputed cheaply on preference changes; text strategies
- * memoize it so in-flight renders never see a mixed scale.
+ * Returns the reader style sheet for `colors`, with typography scaled by
+ * `scale` (1 = the base sheet). Recomputed cheaply on preference changes;
+ * text strategies memoize it so in-flight renders never see a mixed scale.
  */
-export function scaledReaderStyles(scale: number): ReaderStyles {
+export function makeScaledReaderStyles(
+  colors: ThemePalette,
+  scale: number,
+): ReaderStyle {
+  const readerStyle = makeReaderStyle(colors);
   if (scale === 1) {
     return readerStyle;
   }
@@ -69,5 +74,14 @@ export function scaledReaderStyles(scale: number): ReaderStyles {
     map[key] = scaleTextStyle(readerStyle[key] as TextStyle, scale);
     return map;
   }, {} as Record<TextKey, TextStyle>);
-  return { ...readerStyle, ...scaled } as ReaderStyles;
+  return { ...readerStyle, ...scaled } as ReaderStyle;
+}
+
+/** Hook form for renderers: theme colors + font-size scale → style sheet. */
+export function useScaledReaderStyles(scale: number): ReaderStyle {
+  const { colors } = useTheme();
+  return useMemo(
+    () => makeScaledReaderStyles(colors, scale),
+    [colors, scale],
+  );
 }

@@ -3,7 +3,8 @@ import { Text, View } from "react-native";
 import Pdf from "react-native-pdf";
 
 import type { RendererProps } from "./types";
-import { readerStyle as styles } from "@/styles";
+import { makeReaderStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 /**
  * PDF strategy — native pdfium rendering (react-native-pdf), which is why
@@ -20,6 +21,7 @@ export function PdfRenderer({
   onTap,
   onScrollStart,
 }: RendererProps) {
+  const styles = useStyles(makeReaderStyle);
   const [error, setError] = useState<string | null>(null);
   // Initial page is a mount-time decision; later changes come from the user.
   const [initialPage] = useState(() => Math.max(Math.round(restore.page) || 1, 1));

@@ -9,7 +9,8 @@ import {
 } from "react-native";
 
 import type { ReaderPosition } from "../types";
-import { readerStyle as styles } from "@/styles";
+import { makeReaderStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 type ReadingScrollProps = {
   restore: ReaderPosition;
@@ -48,6 +49,7 @@ export function ReadingScroll({
   ready,
   children,
 }: ReadingScrollProps) {
+  const styles = useStyles(makeReaderStyle);
   const scrollRef = useRef<ScrollView | null>(null);
   const measured = useRef({ viewportHeight: 0, contentHeight: 0, applied: false });
   const restorePercent = useRef(restore.percent);

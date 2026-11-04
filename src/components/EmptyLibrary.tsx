@@ -1,5 +1,6 @@
 import { Text, TouchableOpacity, View } from "react-native";
-import { emptyLibraryStyle as styles } from "@/styles";
+import { makeEmptyLibraryStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 type Props = {
   onOpenDocument: () => void;
@@ -10,6 +11,7 @@ type Props = {
  * "No documents yet" + supporting text + floating `+` action.
  */
 export function EmptyLibrary({ onOpenDocument }: Props) {
+  const styles = useStyles(makeEmptyLibraryStyle);
   return (
     <View style={styles.container}>
       <Text style={styles.icon}>{"\u{1F4C4}"}</Text>

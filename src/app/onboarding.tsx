@@ -10,13 +10,15 @@ import { useRef, useState } from "react";
 import Storage from "expo-sqlite/kv-store";
 
 import { SLIDES } from "@/data/constant";
-import { onboardingStyle } from "@/styles";
+import { makeOnboardingStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 const { width } = Dimensions.get("window");
 
 export default function Onboarding() {
   const [page, setPage] = useState(0);
   const listRef = useRef<FlatList>(null);
+  const onboardingStyle = useStyles(makeOnboardingStyle);
 
   const finish = () => {
     try {

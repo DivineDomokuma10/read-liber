@@ -10,7 +10,8 @@ import {
   View,
 } from "react-native";
 
-import { libraryStyle } from "@/styles";
+import { makeLibraryStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 import type { Document } from "@/types/document";
 import {
   filterDocumentsByName,
@@ -42,6 +43,7 @@ type LibrarySection = {
  */
 export default function Library() {
   const { onFilePick } = useDocFilePicker();
+  const styles = useStyles(makeLibraryStyle);
   const [state, setState] = useState<LibraryState>({
     status: "loading",
     documents: [],
@@ -203,18 +205,18 @@ export default function Library() {
 
   return (
     <SafeAreaView
-      style={libraryStyle.container}
+      style={styles.container}
       edges={["top", "left", "right"]}
     >
       <View
         style={[
-          libraryStyle.header,
-          searchActive && libraryStyle.searchHeader,
+          styles.header,
+          searchActive && styles.searchHeader,
         ]}
       >
         {searchActive ? (
           <>
-            <View style={libraryStyle.searchField}>
+            <View style={styles.searchField}>
               <TextInput
                 value={query}
                 onChangeText={setQuery}
@@ -229,42 +231,42 @@ export default function Library() {
                 placeholderTextColor="#747474"
                 selectionColor="#111111"
                 underlineColorAndroid="transparent"
-                style={libraryStyle.searchInput}
+                style={styles.searchInput}
                 accessibilityRole="search"
                 accessibilityLabel="Search documents by filename"
               />
               {query.length > 0 ? (
                 <TouchableOpacity
-                  style={libraryStyle.searchClear}
+                  style={styles.searchClear}
                   onPress={() => setQuery("")}
                   accessibilityRole="button"
                   accessibilityLabel="Clear library search"
                 >
-                  <Text style={libraryStyle.searchClearLabel}>{"\u00D7"}</Text>
+                  <Text style={styles.searchClearLabel}>{"\u00D7"}</Text>
                 </TouchableOpacity>
               ) : null}
             </View>
 
             <TouchableOpacity
-              style={libraryStyle.searchCancel}
+              style={styles.searchCancel}
               onPress={closeSearch}
               accessibilityRole="button"
               accessibilityLabel="Cancel library search"
             >
-              <Text style={libraryStyle.searchCancelLabel}>Cancel</Text>
+              <Text style={styles.searchCancelLabel}>Cancel</Text>
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text style={libraryStyle.headerTitle}>Reader</Text>
+            <Text style={styles.headerTitle}>Reader</Text>
 
             <TouchableOpacity
-              style={libraryStyle.headerAction}
+              style={styles.headerAction}
               accessibilityRole="button"
               accessibilityLabel="Search library"
               onPress={() => setSearchActive(true)}
             >
-              <Text style={libraryStyle.headerIcon}>{"\u{1F50D}"}</Text>
+              <Text style={styles.headerIcon}>{"\u{1F50D}"}</Text>
             </TouchableOpacity>
           </>
         )}
@@ -274,73 +276,73 @@ export default function Library() {
         <>
           {favoriteError ? (
             <View
-              style={libraryStyle.errorBanner}
+              style={styles.errorBanner}
               accessibilityLiveRegion="polite"
             >
-              <Text style={libraryStyle.errorBannerText}>{favoriteError}</Text>
+              <Text style={styles.errorBannerText}>{favoriteError}</Text>
               <TouchableOpacity
                 onPress={() => setFavoriteError(null)}
                 accessibilityRole="button"
                 accessibilityLabel="Dismiss favorite error"
               >
-                <Text style={libraryStyle.errorBannerAction}>Dismiss</Text>
+                <Text style={styles.errorBannerAction}>Dismiss</Text>
               </TouchableOpacity>
             </View>
           ) : null}
 
           {state.status === "error" ? (
             <View
-              style={libraryStyle.errorBanner}
+              style={styles.errorBanner}
               accessibilityLiveRegion="polite"
             >
-              <Text style={libraryStyle.errorBannerText}>{state.message}</Text>
+              <Text style={styles.errorBannerText}>{state.message}</Text>
               <TouchableOpacity
                 onPress={() => void loadDocuments()}
                 accessibilityRole="button"
                 accessibilityLabel="Retry loading library"
               >
-                <Text style={libraryStyle.errorBannerAction}>Retry</Text>
+                <Text style={styles.errorBannerAction}>Retry</Text>
               </TouchableOpacity>
             </View>
           ) : null}
 
           {hasSearchQuery && !hasVisibleDocuments ? (
-            <View style={libraryStyle.stateContainer}>
-              <Text style={libraryStyle.stateTitle}>No documents found</Text>
-              <Text style={libraryStyle.stateMessage}>
+            <View style={styles.stateContainer}>
+              <Text style={styles.stateTitle}>No documents found</Text>
+              <Text style={styles.stateMessage}>
                 Try a different filename or open a new document.
               </Text>
               <TouchableOpacity
-                style={libraryStyle.retryButton}
+                style={styles.retryButton}
                 onPress={() => setQuery("")}
                 accessibilityRole="button"
                 accessibilityLabel="Clear library search"
               >
-                <Text style={libraryStyle.retryButtonLabel}>Clear search</Text>
+                <Text style={styles.retryButtonLabel}>Clear search</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={libraryStyle.secondaryStateButton}
+                style={styles.secondaryStateButton}
                 onPress={handleOpenDocument}
                 accessibilityRole="button"
                 accessibilityLabel="Open a document"
               >
-                <Text style={libraryStyle.secondaryStateButtonLabel}>
+                <Text style={styles.secondaryStateButtonLabel}>
                   Open a document
                 </Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={libraryStyle.listWrap}>
+            <View style={styles.listWrap}>
               <SectionList
                 sections={sections}
                 extraData={favoritePendingIds}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={libraryStyle.listContent}
+                contentContainerStyle={styles.listContent}
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
                 stickySectionHeadersEnabled={false}
                 renderSectionHeader={({ section }) => (
-                  <Text style={libraryStyle.sectionTitle}>{section.title}</Text>
+                  <Text style={styles.sectionTitle}>{section.title}</Text>
                 )}
                 renderItem={({ item }) => (
                   <DocumentListItem
@@ -354,37 +356,37 @@ export default function Library() {
                 )}
               />
               <TouchableOpacity
-                style={libraryStyle.fab}
+                style={styles.fab}
                 onPress={handleOpenDocument}
                 accessibilityRole="button"
                 accessibilityLabel="Open a document"
               >
-                <Text style={libraryStyle.fabLabel}>+</Text>
+                <Text style={styles.fabLabel}>+</Text>
               </TouchableOpacity>
             </View>
           )}
         </>
       ) : state.status === "loading" ? (
-        <View style={libraryStyle.stateContainer}>
+        <View style={styles.stateContainer}>
           <ActivityIndicator accessibilityLabel="Loading library" />
-          <Text style={libraryStyle.stateMessage}>Loading your library…</Text>
+          <Text style={styles.stateMessage}>Loading your library…</Text>
         </View>
       ) : state.status === "error" ? (
-        <View style={libraryStyle.stateContainer}>
-          <Text style={libraryStyle.stateTitle}>Couldn’t load library</Text>
-          <Text style={libraryStyle.stateMessage}>{state.message}</Text>
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateTitle}>Couldn’t load library</Text>
+          <Text style={styles.stateMessage}>{state.message}</Text>
           <TouchableOpacity
-            style={libraryStyle.retryButton}
+            style={styles.retryButton}
             onPress={() => void loadDocuments(true)}
             accessibilityRole="button"
             accessibilityLabel="Retry loading library"
           >
-            <Text style={libraryStyle.retryButtonLabel}>Retry</Text>
+            <Text style={styles.retryButtonLabel}>Retry</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <>
-          <Text style={libraryStyle.sectionTitle}>Recent</Text>
+          <Text style={styles.sectionTitle}>Recent</Text>
           <EmptyLibrary onOpenDocument={handleOpenDocument} />
         </>
       )}

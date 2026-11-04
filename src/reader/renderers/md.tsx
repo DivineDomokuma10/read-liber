@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
+import type { ReaderStyle } from "@/styles";
 import type { RendererProps } from "./types";
 import type { MdBlock } from "./common/markdown";
 import { parseMarkdown } from "./common/markdown";
 import { InlineText } from "./common/InlineText";
 import { usePlainText } from "./common/usePlainText";
 import { ReadingScroll } from "./common/ReadingScroll";
-import { scaledReaderStyles } from "./common/styleScaling";
+import { useScaledReaderStyles } from "./common/styleScaling";
 
 const HEADING_STYLE: Record<number, string> = {
   1: "mdH1",
@@ -20,7 +21,7 @@ const HEADING_STYLE: Record<number, string> = {
 
 function renderBlock(
   block: MdBlock,
-  styles: ReturnType<typeof scaledReaderStyles>,
+  styles: ReaderStyle,
 ) {
   switch (block.kind) {
     case "heading": {
@@ -86,10 +87,7 @@ export function MdRenderer({
 }: RendererProps) {
   const state = usePlainText(uri);
   const ready = state.status === "ready";
-  const styles = useMemo(
-    () => scaledReaderStyles(fontSizeScale ?? 1),
-    [fontSizeScale],
-  );
+  const styles = useScaledReaderStyles(fontSizeScale ?? 1);
 
   const blocks = useMemo(
     () => (ready ? parseMarkdown(state.text) : []),

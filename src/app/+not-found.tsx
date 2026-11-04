@@ -3,7 +3,8 @@ import { Redirect } from "expo-router";
 import { Text, View } from "react-native";
 
 import { isSharedIntentUrl } from "@/utils";
-import { notFoundStyle as styles } from "@/styles";
+import { makeNotFoundStyle } from "@/styles";
+import { useStyles } from "@/theme/useTheme";
 
 /**
  * Catch-all for URLs no route matches — this Expo Router version renders
@@ -17,6 +18,7 @@ import { notFoundStyle as styles } from "@/styles";
  */
 export default function NotFoundRoute() {
   const url = useURL();
+  const styles = useStyles(makeNotFoundStyle);
 
   if (url === null || isSharedIntentUrl(url)) {
     return (

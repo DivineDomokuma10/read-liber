@@ -10,12 +10,13 @@ import {
 } from "react-native";
 
 import type { RendererProps } from "./types";
+import type { ReaderStyle } from "@/styles";
 import type { DocxBlock } from "./common/docx/blocks";
 import type { ParsedChart } from "./common/docx/charts";
 import { parseChartXml } from "./common/docx/charts";
 import { useDocxDocument } from "./common/useDocxDocument";
 import { ReadingScroll } from "./common/ReadingScroll";
-import { scaledReaderStyles } from "./common/styleScaling";
+import { useScaledReaderStyles } from "./common/styleScaling";
 
 const HEADING_STYLE: Record<number, string> = {
   1: "mdH1",
@@ -44,7 +45,7 @@ function DocxImageViewer({
   uri: string;
   caption: string | null;
   onClose: () => void;
-  styles: ReturnType<typeof scaledReaderStyles>;
+  styles: ReaderStyle;
 }) {
   const [ratio, setRatio] = useState<number | null>(null);
 
@@ -114,7 +115,7 @@ function DocxImage({
   uri: string;
   caption: string | null;
   onOpen: () => void;
-  styles: ReturnType<typeof scaledReaderStyles>;
+  styles: ReaderStyle;
 }) {
   const [ratio, setRatio] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
@@ -168,7 +169,7 @@ function DocxChart({
 }: {
   chart: ParsedChart;
   caption: string | null;
-  styles: ReturnType<typeof scaledReaderStyles>;
+  styles: ReaderStyle;
 }) {
   const max = Math.max(
     0,
@@ -261,7 +262,7 @@ function DocxTable({
   styles,
 }: {
   table: Extract<DocxBlock, { kind: "table" }>;
-  styles: ReturnType<typeof scaledReaderStyles>;
+  styles: ReaderStyle;
 }) {
   const colCount = Math.max(1, ...table.rows.map((row) => row.length));
   const showHeader = table.header && table.rows.length > 1;
@@ -316,7 +317,7 @@ function DocxTable({
 
 function renderBlock(
   block: DocxBlock,
-  styles: ReturnType<typeof scaledReaderStyles>,
+  styles: ReaderStyle,
   mediaUris: Map<string, string>,
   charts: Map<string, string>,
   onImageOpen: (uri: string, caption: string | null) => void,
@@ -384,10 +385,7 @@ export function DocxRenderer({
 }: RendererProps) {
   const state = useDocxDocument(uri);
   const ready = state.status === "ready";
-  const styles = useMemo(
-    () => scaledReaderStyles(fontSizeScale ?? 1),
-    [fontSizeScale],
-  );
+  const styles = useScaledReaderStyles(fontSizeScale ?? 1);
 
   const [viewer, setViewer] = useState<{
     uri: string;

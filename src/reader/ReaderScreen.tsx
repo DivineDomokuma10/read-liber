@@ -4,8 +4,9 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Storage from "expo-sqlite/kv-store";
 
-import { readerStyle as styles } from "@/styles";
+import { makeReaderStyle } from "@/styles";
 import { resolveDocumentUri } from "@/utils";
+import { useStyles } from "@/theme/useTheme";
 import { resolveStrategy } from "./renderers/registry";
 import { usePositionPersistence } from "./hooks/usePositionPersistence";
 import { useReaderDocument } from "./hooks/useReaderDocument";
@@ -40,6 +41,7 @@ type Props = {
 
 export function ReaderScreen({ documentId }: Props) {
   const { state, reload } = useReaderDocument(documentId);
+  const styles = useStyles(makeReaderStyle);
 
   /** Clean-read mode: content fills the screen; controls live on tap. */
   const [controlsVisible, setControlsVisible] = useState(true);
