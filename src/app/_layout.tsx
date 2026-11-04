@@ -4,20 +4,16 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
-import {
-  DMSans_400Regular,
-  DMSans_500Medium,
-  DMSans_600SemiBold,
-  DMSans_700Bold,
-} from "@expo-google-fonts/dm-sans";
-import {
-  Literata_400Regular,
-  Literata_500Medium,
-  Literata_600SemiBold,
-  Literata_400Regular_Italic,
-  Literata_500Medium_Italic,
-  Literata_600SemiBold_Italic,
-} from "@expo-google-fonts/literata";
+import { DMSans_400Regular } from "@expo-google-fonts/dm-sans/400Regular";
+import { DMSans_500Medium } from "@expo-google-fonts/dm-sans/500Medium";
+import { DMSans_600SemiBold } from "@expo-google-fonts/dm-sans/600SemiBold";
+import { DMSans_700Bold } from "@expo-google-fonts/dm-sans/700Bold";
+import { Literata_400Regular } from "@expo-google-fonts/literata/400Regular";
+import { Literata_400Regular_Italic } from "@expo-google-fonts/literata/400Regular_Italic";
+import { Literata_500Medium } from "@expo-google-fonts/literata/500Medium";
+import { Literata_500Medium_Italic } from "@expo-google-fonts/literata/500Medium_Italic";
+import { Literata_600SemiBold } from "@expo-google-fonts/literata/600SemiBold";
+import { Literata_600SemiBold_Italic } from "@expo-google-fonts/literata/600SemiBold_Italic";
 
 import { useIncomingDocument } from "@/hooks";
 import { initializeDatabase } from "@/db";

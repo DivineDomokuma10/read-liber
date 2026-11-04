@@ -49,4 +49,9 @@ export const lightPalette: ThemePalette = {
     errorText: "#6a3511",
     errorBackground: "#fff4e8",
   },
+  overlay: {
+    background: "#000000",
+    control: "rgba(255, 255, 255, 0.15)",
+    onControl: "#ffffff",
+  },
 };

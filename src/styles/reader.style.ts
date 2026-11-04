@@ -293,8 +293,7 @@ export const makeReaderStyle = (colors: ThemePalette) =>
     },
     viewerOverlay: {
       flex: 1,
-      // Image viewer overlays on black by design (photos); not themed.
-      backgroundColor: "#000",
+      backgroundColor: colors.overlay.background,
     },
     viewerCloseTouch: {
       position: "absolute",
@@ -302,14 +301,14 @@ export const makeReaderStyle = (colors: ThemePalette) =>
       right: 16,
       width: 44,
       height: 44,
-      borderRadius: 22,
+      borderRadius: radius.pill,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "rgba(255,255,255,0.15)",
+      backgroundColor: colors.overlay.control,
     },
     viewerCloseLabel: {
       fontSize: 20,
-      color: "#fff",
+      color: colors.overlay.onControl,
     },
     docxChart: {
       borderWidth: StyleSheet.hairlineWidth,

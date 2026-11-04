@@ -22,7 +22,7 @@ export type IconProps = {
   /** Square size in px (round icons use the same box). */
   size?: number;
   /** Stroke/fill color — pass a palette value. */
-  color?: ColorValue;
+  color: ColorValue;
   /** Overrides the DS §10 default of 1.8. */
   strokeWidth?: number;
 };
@@ -40,7 +40,7 @@ function base(size: number, strokeWidth: number, color: ColorValue) {
   };
 }
 
-export function MoonIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function MoonIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
@@ -48,7 +48,7 @@ export function MoonIcon({ size = 20, color = "#000000", strokeWidth = interacti
   );
 }
 
-export function SearchIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function SearchIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Circle cx="11" cy="11" r="7" />
@@ -57,7 +57,7 @@ export function SearchIcon({ size = 20, color = "#000000", strokeWidth = interac
   );
 }
 
-export function XCircleIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function XCircleIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Circle cx="12" cy="12" r="9" />
@@ -67,7 +67,7 @@ export function XCircleIcon({ size = 20, color = "#000000", strokeWidth = intera
   );
 }
 
-export function ChevronLeftIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function ChevronLeftIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Polyline points="15 18 9 12 15 6" />
@@ -75,7 +75,7 @@ export function ChevronLeftIcon({ size = 20, color = "#000000", strokeWidth = in
   );
 }
 
-export function StarIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function StarIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Polygon points="12 2.5 14.91 8.26 21 9.27 16.6 13.64 17.68 19.77 12 16.77 6.32 19.77 7.4 13.64 3 9.27 9.09 8.26 12 2.5" />
@@ -83,7 +83,7 @@ export function StarIcon({ size = 20, color = "#000000", strokeWidth = interacti
   );
 }
 
-export function StarFilledIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function StarFilledIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)} fill={color}>
       <Polygon points="12 2.5 14.91 8.26 21 9.27 16.6 13.64 17.68 19.77 12 16.77 6.32 19.77 7.4 13.64 3 9.27 9.09 8.26 12 2.5" />
@@ -91,7 +91,7 @@ export function StarFilledIcon({ size = 20, color = "#000000", strokeWidth = int
   );
 }
 
-export function PlusIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function PlusIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Line x1="12" y1="5" x2="12" y2="19" />
@@ -100,7 +100,7 @@ export function PlusIcon({ size = 20, color = "#000000", strokeWidth = interacti
   );
 }
 
-export function TextSizeIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function TextSizeIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Polyline points="4 7 4 4 20 4 20 7" />
@@ -110,7 +110,7 @@ export function TextSizeIcon({ size = 20, color = "#000000", strokeWidth = inter
   );
 }
 
-export function EllipsisIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function EllipsisIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Circle cx="5" cy="12" r="1" />
@@ -124,7 +124,7 @@ export function EllipsisIcon({ size = 20, color = "#000000", strokeWidth = inter
  * Shared document glyph used inside format badge squares (DS-9 / DS-13).
  * Drawn smaller than the box so the badge's soft background frames it.
  */
-export function FileGlyphIcon({ size = 20, color = "#000000", strokeWidth = interaction.iconStrokeWidth }: IconProps) {
+export function FileGlyphIcon({ size = 20, color, strokeWidth = interaction.iconStrokeWidth }: IconProps) {
   return (
     <Svg {...base(size, strokeWidth, color)}>
       <Path d="M13.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5L13.5 3z" />

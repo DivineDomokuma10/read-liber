@@ -53,4 +53,9 @@ export type ThemePalette = {
     errorText: string;
     errorBackground: string;
   };
+  overlay: {
+    background: string;
+    control: string;
+    onControl: string;
+  };
 };

@@ -146,7 +146,7 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       paddingHorizontal: 20,
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 22,
+      borderRadius: radius.pill,
       // Primary CTA fills use the brand color (DS §9); full restyle in DS-7.
       backgroundColor: colors.brand.primary,
     },

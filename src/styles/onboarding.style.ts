@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 
 import type { ThemePalette } from "@/theme";
+import { radius } from "@/theme";
 
 /** Onboarding carousel styles — restyled in a DS follow-up. */
 export const makeOnboardingStyle = (colors: ThemePalette) =>
@@ -57,13 +58,13 @@ export const makeOnboardingStyle = (colors: ThemePalette) =>
       backgroundColor: colors.text.primary,
     },
     next: {
-      backgroundColor: colors.text.primary,
+      backgroundColor: colors.brand.primary,
       paddingHorizontal: 24,
       paddingVertical: 12,
-      borderRadius: 24,
+      borderRadius: radius.large,
     },
     nextLabel: {
-      color: "#ffffff",
+      color: colors.brand.onPrimary,
       fontSize: 16,
       fontWeight: "600",
     },

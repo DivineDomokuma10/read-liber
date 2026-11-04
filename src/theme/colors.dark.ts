@@ -49,4 +49,9 @@ export const darkPalette: ThemePalette = {
     errorText: "#f2c9aa",
     errorBackground: "#3b2a20",
   },
+  overlay: {
+    background: "#000000",
+    control: "rgba(255, 255, 255, 0.15)",
+    onControl: "#ffffff",
+  },
 };
