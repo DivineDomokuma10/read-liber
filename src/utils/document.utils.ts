@@ -69,6 +69,7 @@ export function toDocumentRow(
     name: asset.name,
     mime_type: asset.mimeType ?? null,
     size: asset.size ?? null,
+    content_hash: asset.contentHash ?? null,
     type: mimeToDocumentType(asset.mimeType),
     last_opened: now,
     page: 1,

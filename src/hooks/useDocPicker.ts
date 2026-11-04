@@ -4,9 +4,14 @@ import { getDocumentAsync } from "expo-document-picker";
 
 import type { DocumentRow } from "@/types";
 import { Database } from "@/services/db.services";
+import { reuseDuplicateDocument } from "@/services/dedupe.service";
 import { ingestToLocal } from "@/services/ingest.service";
 import { ACCEPTED_MIME_TYPE } from "@/data/constant";
-import { toDocumentRow, UnsupportedTypeError } from "@/utils";
+import {
+  fingerprintFile,
+  toDocumentRow,
+  UnsupportedTypeError,
+} from "@/utils";
 
 export const useDocFilePicker = () => {
   const [error, setError] = useState<string | null>(null);
@@ -72,11 +77,24 @@ export const useDocFilePicker = () => {
        * and the reader's validation degrades gracefully if it goes stale.
        */
       const localUri = await ingestToLocal(asset);
+      const fingerprint = await fingerprintFile(localUri ?? asset.uri);
+      const resolvedAsset = {
+        ...asset,
+        size: fingerprint?.size ?? asset.size,
+        contentHash: fingerprint?.contentHash,
+      };
+
+      const duplicate = await reuseDuplicateDocument(resolvedAsset, localUri);
+      if (duplicate) {
+        setLastSaved(duplicate);
+        setError(null);
+        return duplicate;
+      }
 
       let pending: DocumentRow;
 
       try {
-        pending = toDocumentRow(asset, localUri);
+        pending = toDocumentRow(resolvedAsset, localUri);
       } catch (e) {
         if (e instanceof UnsupportedTypeError) {
           setError(`"${asset.name}" isn't a supported type yet.`);

@@ -5,6 +5,7 @@ import { router, useRootNavigationState } from "expo-router";
 
 import type { DocumentRow } from "@/types";
 import { Database } from "@/services/db.services";
+import { reuseDuplicateDocument } from "@/services/dedupe.service";
 import { ingestToLocal } from "@/services/ingest.service";
 import {
   cleanupIntentAsset,
@@ -94,6 +95,16 @@ async function handleSharedDocument(
   }
 
   const localUri = await ingestToLocal(asset);
+  const duplicate = await reuseDuplicateDocument(asset, localUri);
+
+  if (duplicate) {
+    // Both the staged intent copy and any redundant permanent copy are now
+    // unnecessary; the dedupe service already retained/adopted the file the
+    // existing row needs.
+    cleanupIntentAsset(asset);
+    navigate(`/reader?id=${duplicate.id}`);
+    return;
+  }
 
   try {
     const row = toDocumentRow(asset, localUri);
