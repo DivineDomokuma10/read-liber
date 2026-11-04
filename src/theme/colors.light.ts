@@ -44,4 +44,8 @@ export const lightPalette: ThemePalette = {
     color: "#c99f4e",
     background: "#fbf5e8",
   },
+  feedback: {
+    errorText: "#6a3511",
+    errorBackground: "#fff4e8",
+  },
 };

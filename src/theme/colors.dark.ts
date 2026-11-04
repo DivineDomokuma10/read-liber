@@ -44,4 +44,8 @@ export const darkPalette: ThemePalette = {
     color: "#d8b766",
     background: "#3d382a",
   },
+  feedback: {
+    errorText: "#f2c9aa",
+    errorBackground: "#3b2a20",
+  },
 };

@@ -1,27 +1,40 @@
 import { StyleSheet } from "react-native";
 
 import type { ThemePalette } from "@/theme";
+import { fonts, radius } from "@/theme";
 
-/** Empty library screen styles — restyled against DS §15 in DS-15. */
+/** Quiet, centered Library empty state — DS §15 component inventory. */
 export const makeEmptyLibraryStyle = (colors: ThemePalette) =>
   StyleSheet.create({
     container: {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      padding: 24,
+      paddingHorizontal: 32,
+      paddingBottom: 72,
     },
-    icon: {
-      fontSize: 64,
-      marginBottom: 16,
+    iconSurface: {
+      width: 64,
+      height: 64,
+      marginBottom: 20,
+      borderRadius: radius.large,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.brand.soft,
     },
     title: {
-      fontSize: 20,
-      fontWeight: "600",
       marginBottom: 8,
+      color: colors.text.primary,
+      fontFamily: fonts.ui.semiBold,
+      fontSize: 20,
+      lineHeight: 25,
+      textAlign: "center",
     },
     subtitle: {
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.regular,
       fontSize: 14,
-      opacity: 0.6,
+      lineHeight: 20,
+      textAlign: "center",
     },
   });

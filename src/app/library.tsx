@@ -25,6 +25,7 @@ import {
 import { Database } from "@/services/db.services";
 
 import { EmptyLibrary } from "@/components/EmptyLibrary";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { DocumentListItem } from "@/components/DocumentListItem";
 import { FilterPill } from "@/components/FilterPill";
 import { IconButton } from "@/components/IconButton";
@@ -232,10 +233,11 @@ export default function Library() {
   };
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top", "left", "right"]}
-    >
+    <AmbientBackground>
+      <SafeAreaView
+        style={styles.container}
+        edges={["top", "left", "right"]}
+      >
       <View
         style={[
           styles.header,
@@ -413,9 +415,6 @@ export default function Library() {
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
                 stickySectionHeadersEnabled={false}
-                renderSectionHeader={({ section }) => (
-                  <Text style={styles.sectionTitle}>{section.title}</Text>
-                )}
                 renderItem={({ item }) => (
                   <DocumentListItem
                     document={item}
@@ -448,10 +447,7 @@ export default function Library() {
           />
         </View>
       ) : (
-        <>
-          <Text style={styles.sectionTitle}>Recent</Text>
-          <EmptyLibrary />
-        </>
+        <EmptyLibrary />
       )}
 
       {state.status !== "loading" ? (
@@ -466,6 +462,7 @@ export default function Library() {
           accessibilityLabel="Open a document"
         />
       ) : null}
-    </SafeAreaView>
+      </SafeAreaView>
+    </AmbientBackground>
   );
 }

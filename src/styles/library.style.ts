@@ -19,7 +19,7 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.background.primary,
+      backgroundColor: "transparent",
     },
     header: {
       flexDirection: "row",
@@ -99,11 +99,6 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       alignItems: "center",
       justifyContent: "center",
     },
-    searchClearLabel: {
-      color: colors.text.secondary,
-      fontSize: 24,
-      lineHeight: 26,
-    },
     searchCancel: {
       minWidth: 60,
       minHeight: interaction.preferredTarget,
@@ -115,17 +110,11 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       fontFamily: fonts.ui.semiBold,
       fontSize: 14,
     },
-    sectionTitle: {
-      fontSize: 16,
-      fontWeight: "600",
-      paddingHorizontal: 20,
-      paddingVertical: 8,
-      opacity: 0.6,
-    },
     listWrap: {
       flex: 1,
     },
     listContent: {
+      paddingTop: 8,
       paddingBottom: 104,
     },
     stateContainer: {
@@ -136,16 +125,18 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       paddingBottom: 56,
     },
     stateTitle: {
+      color: colors.text.primary,
+      fontFamily: fonts.ui.semiBold,
       marginBottom: 8,
       fontSize: 20,
-      fontWeight: "600",
       textAlign: "center",
     },
     stateMessage: {
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.regular,
       marginTop: 12,
       fontSize: 14,
       lineHeight: 20,
-      opacity: 0.65,
       textAlign: "center",
     },
     retryButton: {
@@ -160,10 +151,9 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       backgroundColor: colors.brand.primary,
     },
     retryButtonLabel: {
-      // Label over a dark fill; inverted-on-dark token arrives with DS-7.
-      color: "#fff",
+      color: colors.brand.onPrimary,
+      fontFamily: fonts.ui.semiBold,
       fontSize: 15,
-      fontWeight: "600",
     },
     primaryStateButton: {
       minWidth: 112,
@@ -178,9 +168,9 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       justifyContent: "center",
     },
     secondaryStateButtonLabel: {
-      color: colors.text.primary,
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.semiBold,
       fontSize: 14,
-      fontWeight: "600",
     },
     errorBanner: {
       minHeight: 48,
@@ -191,22 +181,22 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
-      borderRadius: 8,
-      // Error banner tones are restyled in DS-15.
-      backgroundColor: "#FFF4E8",
+      borderRadius: radius.medium,
+      backgroundColor: colors.feedback.errorBackground,
     },
     errorBannerText: {
       flex: 1,
-      color: "#6A3511",
+      color: colors.feedback.errorText,
+      fontFamily: fonts.ui.regular,
       fontSize: 13,
       lineHeight: 18,
     },
     errorBannerAction: {
       minWidth: interaction.preferredTarget,
       minHeight: interaction.preferredTarget,
-      color: "#6A3511",
+      color: colors.feedback.errorText,
+      fontFamily: fonts.ui.bold,
       fontSize: 14,
-      fontWeight: "700",
       lineHeight: interaction.preferredTarget,
       textAlign: "center",
     },

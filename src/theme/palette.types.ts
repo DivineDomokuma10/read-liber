@@ -48,4 +48,8 @@ export type ThemePalette = {
     color: string;
     background: string;
   };
+  feedback: {
+    errorText: string;
+    errorBackground: string;
+  };
 };
