@@ -278,7 +278,10 @@ export function ReaderScreen({ documentId }: Props) {
 
       {state.status === "loading" ? (
         <View style={styles.body}>
-          <ActivityIndicator accessibilityLabel="Loading document" />
+          <ActivityIndicator
+            accessibilityLabel="Loading document"
+            accessibilityRole="progressbar"
+          />
         </View>
       ) : null}
 
@@ -344,6 +347,7 @@ export function ReaderScreen({ documentId }: Props) {
                   <Pressable
                     onPress={() => adjustScale(-1)}
                     disabled={scaleIndex === 0}
+                    accessibilityState={{ disabled: scaleIndex === 0 }}
                     style={styles.controlsButton}
                     hitSlop={8}
                     accessibilityRole="button"
@@ -362,6 +366,9 @@ export function ReaderScreen({ documentId }: Props) {
                   <Pressable
                     onPress={() => adjustScale(1)}
                     disabled={scaleIndex === SCALE_STEPS.length - 1}
+                    accessibilityState={{
+                      disabled: scaleIndex === SCALE_STEPS.length - 1,
+                    }}
                     style={styles.controlsButton}
                     hitSlop={8}
                     accessibilityRole="button"

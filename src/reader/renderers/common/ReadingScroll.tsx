@@ -99,7 +99,11 @@ export function ReadingScroll({
   }, [onScrollStart]);
 
   const content = onTap ? (
-    <Pressable onPress={onTap} style={styles.contentPadding}>
+    <Pressable
+      accessible={false}
+      onPress={onTap}
+      style={styles.contentPadding}
+    >
       {children}
     </Pressable>
   ) : (

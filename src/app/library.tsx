@@ -431,7 +431,10 @@ export default function Library() {
         </>
       ) : state.status === "loading" ? (
         <View style={styles.stateContainer}>
-          <ActivityIndicator accessibilityLabel="Loading library" />
+          <ActivityIndicator
+            accessibilityLabel="Loading library"
+            accessibilityRole="progressbar"
+          />
           <Text style={styles.stateMessage}>Loading your library…</Text>
         </View>
       ) : state.status === "error" ? (

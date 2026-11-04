@@ -87,6 +87,11 @@ export function PrimaryButton({
     <Animated.View style={[styles.shadow, animatedStyle, style]}>
       <Pressable
         {...pressableProps}
+        accessibilityRole={pressableProps.accessibilityRole ?? "button"}
+        accessibilityState={{
+          ...pressableProps.accessibilityState,
+          disabled: disabled ?? undefined,
+        }}
         disabled={disabled}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
