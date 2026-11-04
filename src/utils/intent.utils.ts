@@ -1,9 +1,11 @@
 import { Directory, File, FileMode, Paths } from "expo-file-system";
 import ReactNativeBlobUtil from "react-native-blob-util";
 
+import { getContentMetadata } from "@/services/content-metadata.service";
 import { sanitizeFilename } from "@/services/ingest.service";
 import type { PickedAsset } from "@/types/document";
 import { MIME_TO_TYPE } from "./document.utils";
+import { fingerprintFile } from "./file.utils";
 
 /**
  * Cache staging area for files received via VIEW intents ("Open with" from
@@ -190,6 +192,7 @@ export async function resolveIntentAsset(
 ): Promise<PickedAsset | null> {
   try {
     const source = new File(url);
+    const metadata = await getContentMetadata(url);
     let providerMime: string | undefined;
     let size: number | undefined;
 
@@ -199,13 +202,15 @@ export async function resolveIntentAsset(
      * subsequent stream copy remains the source-of-truth access check.
      */
     try {
-      providerMime = source.type || undefined;
-      size = source.size || undefined;
+      providerMime = metadata?.mimeType || source.type || undefined;
+      size = metadata?.size || source.size || undefined;
     } catch {
       // Provider metadata unavailable — use URI/content fallbacks below.
     }
 
-    const initialName = sanitizeFilename(guessNameFromUri(url));
+    const initialName = sanitizeFilename(
+      metadata?.displayName || guessNameFromUri(url),
+    );
     let mimeType = supportedMime(providerMime) ?? mimeFromFilename(initialName);
 
     const dir = new Directory(Paths.cache, SHARED_CACHE_DIR_NAME);
@@ -223,12 +228,14 @@ export async function resolveIntentAsset(
 
     mimeType ??= mimeFromContent(copied);
     const name = nameWithResolvedExtension(initialName, mimeType);
+    const fingerprint = await fingerprintFile(copied.uri);
 
     return {
       uri: dest.uri,
       name,
       mimeType,
-      size: size ?? copied.size,
+      size: fingerprint?.size ?? size ?? copied.size,
+      contentHash: fingerprint?.contentHash,
     };
   } catch (e) {
     console.error("Intent asset resolution failed:", e);
