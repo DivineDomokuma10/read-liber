@@ -1,18 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Storage from "expo-sqlite/kv-store";
 
 import { FormatBadge } from "@/components/FormatBadge";
 import { IconButton } from "@/components/IconButton";
 import {
   ChevronLeftIcon,
+  EllipsisIcon,
   StarFilledIcon,
   StarIcon,
 } from "@/components/icons";
 import { makeReaderStyle } from "@/styles";
 import { resolveDocumentUri } from "@/utils";
+import { useReducedMotion } from "@/hooks";
+import { motion } from "@/theme";
 import { useStyles, useTheme } from "@/theme/useTheme";
 import { resolveStrategy } from "./renderers/registry";
 import { usePositionPersistence } from "./hooks/usePositionPersistence";
@@ -48,8 +61,10 @@ type Props = {
 
 export function ReaderScreen({ documentId }: Props) {
   const { state, reload, setFavorite } = useReaderDocument(documentId);
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const styles = useStyles(makeReaderStyle);
+  const reduceMotion = useReducedMotion();
 
   /** Clean-read mode: content fills the screen; controls live on tap. */
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -57,6 +72,12 @@ export function ReaderScreen({ documentId }: Props) {
   const [scaleIndex, setScaleIndex] = useState(readScaleIndex);
   const [favoritePending, setFavoritePending] = useState(false);
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
+  const [controlsProgress] = useState(() => new Animated.Value(1));
+  const [livePosition, setLivePosition] = useState<{
+    documentId: string;
+    page: number;
+    percent: number;
+  } | null>(null);
 
   /**
    * Persistence policy lives here, not in renderers: the strategy reports
@@ -72,6 +93,23 @@ export function ReaderScreen({ documentId }: Props) {
     const timer = setTimeout(() => setControlsVisible(false), CONTROLS_TIMEOUT_MS);
     return () => clearTimeout(timer);
   }, [controlsVisible]);
+
+  useEffect(() => {
+    const target = controlsVisible ? 1 : 0;
+    if (reduceMotion) {
+      controlsProgress.setValue(target);
+      return;
+    }
+
+    const animation = Animated.timing(controlsProgress, {
+      toValue: target,
+      duration: controlsVisible ? motion.standard : motion.slow,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [controlsProgress, controlsVisible, reduceMotion]);
 
   /** Tap on content: flip clean mode, and restart the idle hide timer. */
   const handleContentTap = useCallback(() => {
@@ -119,16 +157,47 @@ export function ReaderScreen({ documentId }: Props) {
     }
   }, [favoritePending, setFavorite, state]);
 
+  const handlePositionChange = useCallback(
+    (page: number, percent: number) => {
+      onPositionChange(page, percent);
+      if (documentId) {
+        setLivePosition({ documentId, page, percent });
+      }
+    },
+    [documentId, onPositionChange],
+  );
+
   const strategy =
     state.status === "ready" ? resolveStrategy(state.document.type) : null;
+  const displayPosition =
+    state.status === "ready" && livePosition?.documentId === state.document.id
+      ? livePosition
+      : state.status === "ready"
+        ? { page: state.document.page, percent: state.document.percent }
+        : { page: 1, percent: 0 };
 
   return (
     <SafeAreaView
       style={styles.container}
       edges={["top", "left", "right"]}
     >
-      {controlsVisible ? (
-        <View style={styles.header}>
+      <Animated.View
+        pointerEvents={controlsVisible ? "box-none" : "none"}
+        style={[
+          styles.header,
+          {
+            opacity: controlsProgress,
+            transform: [
+              {
+                translateY: controlsProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-8, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
           <IconButton
             onPress={goToLibrary}
             accessibilityLabel="Back to library"
@@ -178,8 +247,7 @@ export function ReaderScreen({ documentId }: Props) {
               )}
             </IconButton>
           ) : null}
-        </View>
-      ) : null}
+      </Animated.View>
 
       {controlsVisible && favoriteError ? (
         <Text style={styles.headerNotice} accessibilityLiveRegion="polite">
@@ -201,25 +269,40 @@ export function ReaderScreen({ documentId }: Props) {
               page: state.document.page,
               percent: state.document.percent,
             }}
-            onPositionChange={onPositionChange}
+            onPositionChange={handlePositionChange}
             onScrollStart={handleScrollStart}
             onTap={handleContentTap}
             fontSizeScale={SCALE_STEPS[scaleIndex]}
           />
 
-          {controlsVisible ? (
-            <View style={styles.controlsBar}>
-              <Pressable
-                onPress={goToLibrary}
-                style={styles.controlsButton}
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel="Back to library"
-              >
-                <Text style={styles.controlsButtonLabel}>{"\u2190"}</Text>
-              </Pressable>
+          <Animated.View
+            pointerEvents={controlsVisible ? "box-none" : "none"}
+            style={[
+              styles.controlsBar,
+              { bottom: Math.max(insets.bottom, 16) },
+              {
+                opacity: controlsProgress,
+                transform: [
+                  {
+                    translateY: controlsProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [8, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <View style={styles.statusPill}>
+              <Text style={styles.positionLabel}>
+                {state.document.type === "pdf"
+                  ? `Page ${displayPosition.page}`
+                  : `${Math.round(displayPosition.percent)}%`}
+              </Text>
+            </View>
+
               {state.document.type !== "pdf" ? (
-                <>
+                <View style={styles.settingsPill}>
                   <Pressable
                     onPress={() => adjustScale(-1)}
                     disabled={scaleIndex === 0}
@@ -257,15 +340,15 @@ export function ReaderScreen({ documentId }: Props) {
                       {"A+"}
                     </Text>
                   </Pressable>
-                </>
+                  <View
+                    accessible={false}
+                    style={styles.controlsEllipsis}
+                  >
+                    <EllipsisIcon size={18} color={colors.text.secondary} />
+                  </View>
+                </View>
               ) : null}
-              <Text style={styles.positionLabel}>
-                {state.document.type === "pdf"
-                  ? `Page ${state.document.page}`
-                  : `${Math.round(state.document.percent)}%`}
-              </Text>
-            </View>
-          ) : null}
+          </Animated.View>
         </>
       ) : null}
 
