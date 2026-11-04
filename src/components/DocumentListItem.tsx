@@ -1,7 +1,19 @@
-import { Text, TouchableOpacity, View } from "react-native";
-import type { Document } from "@/types/document";
+import { useState } from "react";
+import {
+  Animated,
+  Easing,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
+
+import { FormatBadge } from "@/components/FormatBadge";
+import { StarFilledIcon, StarIcon } from "@/components/icons";
+import { useReducedMotion } from "@/hooks";
 import { makeDocumentListItemStyle } from "@/styles";
-import { useStyles } from "@/theme/useTheme";
+import { motion } from "@/theme";
+import { useStyles, useTheme } from "@/theme/useTheme";
+import type { Document } from "@/types/document";
 import { formatLastOpened, formatReadingPosition } from "@/utils";
 
 type Props = {
@@ -11,13 +23,6 @@ type Props = {
   favoritePending?: boolean;
 };
 
-const TYPE_ICON: Record<Document["type"], string> = {
-  pdf: "📄",
-  docx: "📄",
-  md: "📝",
-  txt: "📝",
-};
-
 const TYPE_LABEL: Record<Document["type"], string> = {
   pdf: "PDF",
   docx: "DOCX",
@@ -25,14 +30,17 @@ const TYPE_LABEL: Record<Document["type"], string> = {
   txt: "TXT",
 };
 
-/** One row of the library list — spec:11. List, not cards. */
+/** Glass document row from DS §8, preserving the existing action semantics. */
 export function DocumentListItem({
   document,
   onPress,
   onFavoriteChange,
   favoritePending = false,
 }: Props) {
+  const { colors } = useTheme();
   const styles = useStyles(makeDocumentListItemStyle);
+  const reduceMotion = useReducedMotion();
+  const [pressedValue] = useState(() => new Animated.Value(0));
   const missing = document.available === false;
   const typeLabel = TYPE_LABEL[document.type];
   const positionLabel = formatReadingPosition(
@@ -41,45 +49,93 @@ export function DocumentListItem({
     document.percent,
   );
   const lastOpenedLabel = formatLastOpened(document.lastOpened);
-  const detailLabel = missing
-    ? `${typeLabel} · File unavailable`
-    : `${typeLabel} · ${positionLabel} · ${lastOpenedLabel}`;
+  const progress = Math.min(Math.max(document.percent, 0), 100);
   const accessibilityDetail = missing
     ? `${typeLabel}, file unavailable`
-    : `${typeLabel}, ${positionLabel}, ${lastOpenedLabel}`;
+    : `${typeLabel}, ${positionLabel}, ${lastOpenedLabel}, ${Math.round(progress)} percent`;
+
+  const animateTo = (value: number) => {
+    if (reduceMotion) {
+      pressedValue.setValue(0);
+      return;
+    }
+
+    Animated.timing(pressedValue, {
+      toValue: value,
+      duration: motion.standard,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
-    <View style={styles.row}>
-      <TouchableOpacity
-        style={[styles.openArea, missing && styles.rowMissing]}
+    <Animated.View
+      style={[
+        styles.row,
+        missing && styles.rowMissing,
+        {
+          transform: [
+            {
+              scale: pressedValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0.985],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <Pressable
+        style={styles.openArea}
         onPress={() => onPress(document)}
+        onPressIn={() => animateTo(1)}
+        onPressOut={() => animateTo(0)}
         accessibilityRole="button"
         accessibilityLabel={`Open ${document.name}, ${accessibilityDetail}`}
-        activeOpacity={missing ? 1 : undefined}
       >
-        <Text style={[styles.icon, missing && styles.iconMissing]}>
-          {TYPE_ICON[document.type]}
-        </Text>
+        <FormatBadge type={document.type} />
+
         <View style={styles.meta}>
-          <Text
-            style={[styles.name, missing && styles.nameMissing]}
-            numberOfLines={1}
-          >
+          <Text style={styles.name} numberOfLines={1}>
             {document.name}
           </Text>
-          <Text style={[styles.detail, missing && styles.nameMissing]}>
-            {detailLabel}
-          </Text>
-        </View>
-      </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[
+          <View style={styles.detailRow}>
+            <FormatBadge type={document.type} variant="tag" />
+            <Text style={styles.detail} numberOfLines={1}>
+              {missing ? "File unavailable" : positionLabel}
+            </Text>
+            {!missing ? (
+              <>
+                <Text style={styles.detailDivider}>·</Text>
+                <Text style={styles.detail} numberOfLines={1}>
+                  {lastOpenedLabel}
+                </Text>
+              </>
+            ) : null}
+          </View>
+
+          {!missing ? (
+            <View style={styles.progressRow}>
+              <View style={styles.progressTrack}>
+                <View
+                  style={[styles.progressFill, { width: `${progress}%` }]}
+                />
+              </View>
+              <Text style={styles.progressLabel}>{Math.round(progress)}%</Text>
+            </View>
+          ) : null}
+        </View>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
           styles.favoriteButton,
-          favoritePending && styles.favoriteButtonPending,
+          (favoritePending || pressed) && styles.favoriteButtonPending,
         ]}
         onPress={() => onFavoriteChange(document, !document.favorite)}
         disabled={favoritePending}
+        hitSlop={4}
         accessibilityRole="togglebutton"
         accessibilityLabel={
           document.favorite
@@ -91,15 +147,12 @@ export function DocumentListItem({
           disabled: favoritePending,
         }}
       >
-        <Text
-          style={[
-            styles.favoriteLabel,
-            document.favorite && styles.favoriteLabelSelected,
-          ]}
-        >
-          {document.favorite ? "\u2605" : "\u2606"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        {document.favorite ? (
+          <StarFilledIcon size={18} color={colors.favorite.color} />
+        ) : (
+          <StarIcon size={18} color={colors.text.muted} />
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
