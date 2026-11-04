@@ -83,8 +83,36 @@ export function useReaderDocument(documentId: string | undefined) {
     setReloadToken((token) => token + 1);
   }, [documentId]);
 
+  const setFavorite = useCallback(
+    async (favorite: boolean) => {
+      if (!documentId) {
+        return false;
+      }
+
+      const result = await Database.setFavorite(documentId, favorite ? 1 : 0);
+      if (result.changes !== 1) {
+        return false;
+      }
+
+      setState((current) =>
+        current.status === "ready" && current.document.id === documentId
+          ? {
+              ...current,
+              document: {
+                ...current.document,
+                favorite: favorite ? 1 : 0,
+              },
+            }
+          : current,
+      );
+      return true;
+    },
+    [documentId],
+  );
+
   return {
     state: documentId ? state : ({ status: "not-found" } as const),
     reload,
+    setFavorite,
   };
 }

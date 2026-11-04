@@ -4,9 +4,16 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Storage from "expo-sqlite/kv-store";
 
+import { FormatBadge } from "@/components/FormatBadge";
+import { IconButton } from "@/components/IconButton";
+import {
+  ChevronLeftIcon,
+  StarFilledIcon,
+  StarIcon,
+} from "@/components/icons";
 import { makeReaderStyle } from "@/styles";
 import { resolveDocumentUri } from "@/utils";
-import { useStyles } from "@/theme/useTheme";
+import { useStyles, useTheme } from "@/theme/useTheme";
 import { resolveStrategy } from "./renderers/registry";
 import { usePositionPersistence } from "./hooks/usePositionPersistence";
 import { useReaderDocument } from "./hooks/useReaderDocument";
@@ -40,13 +47,16 @@ type Props = {
 };
 
 export function ReaderScreen({ documentId }: Props) {
-  const { state, reload } = useReaderDocument(documentId);
+  const { state, reload, setFavorite } = useReaderDocument(documentId);
+  const { colors } = useTheme();
   const styles = useStyles(makeReaderStyle);
 
   /** Clean-read mode: content fills the screen; controls live on tap. */
   const [controlsVisible, setControlsVisible] = useState(true);
   /** Global typography scale for text strategies, eased through A−/A+. */
   const [scaleIndex, setScaleIndex] = useState(readScaleIndex);
+  const [favoritePending, setFavoritePending] = useState(false);
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
 
   /**
    * Persistence policy lives here, not in renderers: the strategy reports
@@ -89,6 +99,26 @@ export function ReaderScreen({ documentId }: Props) {
     [scaleIndex],
   );
 
+  const handleFavoriteToggle = useCallback(async () => {
+    if (state.status !== "ready" || favoritePending) {
+      return;
+    }
+
+    setFavoritePending(true);
+    setFavoriteError(null);
+    try {
+      const updated = await setFavorite(state.document.favorite !== 1);
+      if (!updated) {
+        setFavoriteError("Favorite couldn’t be updated. Please try again.");
+      }
+    } catch (error) {
+      console.error("Reader favorite update failed:", error);
+      setFavoriteError("Favorite couldn’t be updated. Please try again.");
+    } finally {
+      setFavoritePending(false);
+    }
+  }, [favoritePending, setFavorite, state]);
+
   const strategy =
     state.status === "ready" ? resolveStrategy(state.document.type) : null;
 
@@ -99,20 +129,62 @@ export function ReaderScreen({ documentId }: Props) {
     >
       {controlsVisible ? (
         <View style={styles.header}>
-          <Pressable
+          <IconButton
             onPress={goToLibrary}
-            style={styles.backButton}
-            hitSlop={8}
-            accessibilityRole="button"
             accessibilityLabel="Back to library"
           >
-            <Text style={styles.backLabel}>{"\u2190"}</Text>
-          </Pressable>
+            <ChevronLeftIcon color={colors.text.primary} />
+          </IconButton>
 
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {state.status === "ready" ? state.document.name : "Reader"}
-          </Text>
+          <View
+            accessible
+            accessibilityRole="header"
+            accessibilityLabel={
+              state.status === "ready"
+                ? `${state.document.name}, ${state.document.type}`
+                : "Reader"
+            }
+            style={styles.headerTitleChip}
+          >
+            <Text style={styles.headerTitle} numberOfLines={1}>
+              {state.status === "ready" ? state.document.name : "Reader"}
+            </Text>
+            {state.status === "ready" ? (
+              <View style={styles.headerMeta}>
+                <FormatBadge type={state.document.type} variant="tag" />
+              </View>
+            ) : null}
+          </View>
+
+          {state.status === "ready" ? (
+            <IconButton
+              onPress={() => void handleFavoriteToggle()}
+              disabled={favoritePending}
+              accessibilityLabel={
+                state.document.favorite === 1
+                  ? `Remove ${state.document.name} from favorites`
+                  : `Add ${state.document.name} to favorites`
+              }
+              accessibilityRole="togglebutton"
+              accessibilityState={{
+                checked: state.document.favorite === 1,
+                disabled: favoritePending,
+              }}
+            >
+              {state.document.favorite === 1 ? (
+                <StarFilledIcon color={colors.favorite.color} />
+              ) : (
+                <StarIcon color={colors.text.primary} />
+              )}
+            </IconButton>
+          ) : null}
         </View>
+      ) : null}
+
+      {controlsVisible && favoriteError ? (
+        <Text style={styles.headerNotice} accessibilityLiveRegion="polite">
+          {favoriteError}
+        </Text>
       ) : null}
 
       {state.status === "loading" ? (

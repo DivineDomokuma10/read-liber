@@ -10,7 +10,9 @@ import { usePlainText } from "./common/usePlainText";
 import { ReadingScroll } from "./common/ReadingScroll";
 import { useScaledReaderStyles } from "./common/styleScaling";
 
-const HEADING_STYLE: Record<number, string> = {
+type HeadingStyleKey = "mdH1" | "mdH2" | "mdH3" | "mdH4" | "mdH5" | "mdH6";
+
+const HEADING_STYLE: Record<number, HeadingStyleKey> = {
   1: "mdH1",
   2: "mdH2",
   3: "mdH3",
@@ -28,7 +30,7 @@ function renderBlock(
       const styleKey = HEADING_STYLE[block.level];
 
       return styleKey ? (
-        <Text style={styles[styleKey as keyof typeof styles]}>
+        <Text style={styles[styleKey]}>
           <InlineText spans={block.spans} overrideStyles={styles} />
         </Text>
       ) : null;
