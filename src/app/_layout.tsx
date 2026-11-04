@@ -11,9 +11,7 @@ import { DMSans_700Bold } from "@expo-google-fonts/dm-sans/700Bold";
 import { Literata_400Regular } from "@expo-google-fonts/literata/400Regular";
 import { Literata_400Regular_Italic } from "@expo-google-fonts/literata/400Regular_Italic";
 import { Literata_500Medium } from "@expo-google-fonts/literata/500Medium";
-import { Literata_500Medium_Italic } from "@expo-google-fonts/literata/500Medium_Italic";
 import { Literata_600SemiBold } from "@expo-google-fonts/literata/600SemiBold";
-import { Literata_600SemiBold_Italic } from "@expo-google-fonts/literata/600SemiBold_Italic";
 
 import { useIncomingDocument } from "@/hooks";
 import { initializeDatabase } from "@/db";
@@ -35,8 +33,6 @@ export default function RootLayout() {
     Literata_500Medium,
     Literata_600SemiBold,
     Literata_400Regular_Italic,
-    Literata_500Medium_Italic,
-    Literata_600SemiBold_Italic,
   });
 
   useEffect(() => {

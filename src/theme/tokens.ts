@@ -110,7 +110,5 @@ export const fonts = {
     medium: "Literata_500Medium",
     semiBold: "Literata_600SemiBold",
     regularItalic: "Literata_400Regular_Italic",
-    mediumItalic: "Literata_500Medium_Italic",
-    semiBoldItalic: "Literata_600SemiBold_Italic",
   },
 } as const;
