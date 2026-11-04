@@ -124,7 +124,9 @@
       "expo-file-system",
       "@config-plugins/react-native-blob-util",
       "@config-plugins/react-native-pdf",
-      "./plugins/withAndroidAbi"
+      "./plugins/withAndroidAbi",
+      "expo-font",
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true

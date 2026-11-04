@@ -90,3 +90,27 @@ export const interaction = {
   preferredTarget: 44,
   iconStrokeWidth: 1.8,
 } as const;
+
+/**
+ * Fonts — DS §2 families. Names match the resources loaded in
+ * `src/app/_layout.tsx` via `expo-font` (@expo-google-fonts packages).
+ * Code keeps `"monospace"` per DS §2/reading conventions.
+ */
+export const fonts = {
+  /** DM Sans — navigation, buttons, labels, metadata, document lists. */
+  ui: {
+    regular: "DMSans_400Regular",
+    medium: "DMSans_500Medium",
+    semiBold: "DMSans_600SemiBold",
+    bold: "DMSans_700Bold",
+  },
+  /** Literata — document content, reading headings, quotes. */
+  reading: {
+    regular: "Literata_400Regular",
+    medium: "Literata_500Medium",
+    semiBold: "Literata_600SemiBold",
+    regularItalic: "Literata_400Regular_Italic",
+    mediumItalic: "Literata_500Medium_Italic",
+    semiBoldItalic: "Literata_600SemiBold_Italic",
+  },
+} as const;
