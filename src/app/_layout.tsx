@@ -3,13 +3,17 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import { useIncomingDocument } from "@/hooks";
-import { createDocSchema } from "@/db/";
+import { initializeDatabase } from "@/db";
 
 export default function RootLayout() {
   useIncomingDocument();
 
   useEffect(() => {
-    createDocSchema().catch(console.error);
+    void initializeDatabase().catch((error) => {
+      // DAO callers retry through the same initialization barrier and surface
+      // operation-specific UI; this eagerly records startup failures.
+      console.error("Database initialization failed:", error);
+    });
   }, []);
 
   return (

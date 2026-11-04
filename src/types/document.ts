@@ -5,6 +5,7 @@ export type PickedAsset = {
   name: string;
   mimeType?: string;
   size?: number;
+  contentHash?: string;
 };
 
 export type Document = {
@@ -36,6 +37,7 @@ export type DocumentRow = {
   created_at: number;
   updated_at: number;
   size: number | null;
+  content_hash: string | null;
   local_uri: string | null;
   mime_type: string | null;
   last_opened: number | null;
