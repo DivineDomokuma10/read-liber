@@ -23,8 +23,9 @@ import { Database } from "@/services/db.services";
 
 import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { DocumentListItem } from "@/components/DocumentListItem";
+import { FilterPill } from "@/components/FilterPill";
 import { IconButton } from "@/components/IconButton";
-import { MoonIcon, SearchIcon } from "@/components/icons";
+import { MoonIcon, SearchIcon, StarIcon } from "@/components/icons";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useDocFilePicker } from "@/hooks";
 
@@ -38,6 +39,8 @@ type LibrarySection = {
   title: "Favorites" | "Recent";
   data: Document[];
 };
+
+type LibraryFilter = "all" | "favorites";
 
 /**
  * Home / Library — spec:7, spec:8, spec:11.
@@ -54,6 +57,7 @@ export default function Library() {
   });
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<LibraryFilter>("all");
   const [favoritePendingIds, setFavoritePendingIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -182,15 +186,24 @@ export default function Library() {
   const hasDocuments = documents.length > 0;
   const normalizedQuery = normalizeLibraryQuery(query);
   const hasSearchQuery = normalizedQuery.length > 0;
-  const visibleDocuments = useMemo(
-    () => filterDocumentsByName(documents, query),
-    [documents, query],
-  );
+  const visibleDocuments = useMemo(() => {
+    const filtered =
+      filter === "favorites"
+        ? documents.filter((document) => document.favorite)
+        : documents;
+    return filterDocumentsByName(filtered, query);
+  }, [documents, filter, query]);
   const hasVisibleDocuments = visibleDocuments.length > 0;
   const sections = useMemo<LibrarySection[]>(() => {
     const favorites = visibleDocuments.filter((document) => document.favorite);
     const recent = visibleDocuments.filter((document) => !document.favorite);
     const next: LibrarySection[] = [];
+
+    if (filter === "favorites") {
+      return favorites.length > 0
+        ? [{ key: "favorites", title: "Favorites", data: favorites }]
+        : [];
+    }
 
     if (favorites.length > 0) {
       next.push({ key: "favorites", title: "Favorites", data: favorites });
@@ -200,7 +213,7 @@ export default function Library() {
     }
 
     return next;
-  }, [visibleDocuments]);
+  }, [filter, visibleDocuments]);
 
   const closeSearch = () => {
     setQuery("");
@@ -287,6 +300,20 @@ export default function Library() {
         )}
       </View>
 
+      <View style={styles.filters}>
+        <FilterPill
+          active={filter === "all"}
+          label="All"
+          onPress={() => setFilter("all")}
+        />
+        <FilterPill
+          active={filter === "favorites"}
+          label="Favorites"
+          icon={(color) => <StarIcon size={13} color={color} />}
+          onPress={() => setFilter("favorites")}
+        />
+      </View>
+
       {hasDocuments ? (
         <>
           {favoriteError ? (
@@ -321,20 +348,36 @@ export default function Library() {
             </View>
           ) : null}
 
-          {hasSearchQuery && !hasVisibleDocuments ? (
+          {(hasSearchQuery || filter === "favorites") &&
+          !hasVisibleDocuments ? (
             <View style={styles.stateContainer}>
-              <Text style={styles.stateTitle}>No documents found</Text>
-              <Text style={styles.stateMessage}>
-                Try a different filename or open a new document.
+              <Text style={styles.stateTitle}>
+                {hasSearchQuery ? "No documents found" : "No favorites yet"}
               </Text>
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={() => setQuery("")}
-                accessibilityRole="button"
-                accessibilityLabel="Clear library search"
-              >
-                <Text style={styles.retryButtonLabel}>Clear search</Text>
-              </TouchableOpacity>
+              <Text style={styles.stateMessage}>
+                {hasSearchQuery
+                  ? "Try a different filename or open a new document."
+                  : "Star a document to keep it close at hand."}
+              </Text>
+              {hasSearchQuery ? (
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={() => setQuery("")}
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear library search"
+                >
+                  <Text style={styles.retryButtonLabel}>Clear search</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={() => setFilter("all")}
+                  accessibilityRole="button"
+                  accessibilityLabel="Show all documents"
+                >
+                  <Text style={styles.retryButtonLabel}>Show all</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={styles.secondaryStateButton}
                 onPress={handleOpenDocument}

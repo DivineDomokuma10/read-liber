@@ -56,6 +56,13 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       alignItems: "center",
       gap: 8,
     },
+    filters: {
+      minHeight: 44,
+      paddingHorizontal: layout.screenGutter,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+    },
     themeIndicator: {
       width: interaction.preferredTarget,
       height: interaction.preferredTarget,

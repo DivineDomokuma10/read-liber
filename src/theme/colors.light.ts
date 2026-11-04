@@ -32,6 +32,13 @@ export const lightPalette: ThemePalette = {
     backgroundHover: "rgba(255, 255, 255, 0.72)",
     border: "rgba(255, 255, 255, 0.76)",
   },
+  filterPill: {
+    activeBackground: "#2e332e",
+    activeText: "#f7f7f2",
+    inactiveBackground: "rgba(255, 255, 255, 0.3)",
+    inactiveText: "#75766f",
+    border: "rgba(255, 255, 255, 0.56)",
+  },
   divider: "rgba(104, 116, 107, 0.14)",
   favorite: {
     color: "#c99f4e",

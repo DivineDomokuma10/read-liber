@@ -36,6 +36,13 @@ export type ThemePalette = {
     backgroundHover: string;
     border: string;
   };
+  filterPill: {
+    activeBackground: string;
+    activeText: string;
+    inactiveBackground: string;
+    inactiveText: string;
+    border: string;
+  };
   divider: string;
   favorite: {
     color: string;

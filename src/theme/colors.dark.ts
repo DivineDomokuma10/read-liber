@@ -32,6 +32,13 @@ export const darkPalette: ThemePalette = {
     backgroundHover: "rgba(44, 53, 46, 0.72)",
     border: "rgba(255, 255, 255, 0.09)",
   },
+  filterPill: {
+    activeBackground: "#dbe5dd",
+    activeText: "#202521",
+    inactiveBackground: "rgba(37, 44, 38, 0.3)",
+    inactiveText: "#a8aea8",
+    border: "rgba(255, 255, 255, 0.09)",
+  },
   divider: "#424943",
   favorite: {
     color: "#d8b766",
