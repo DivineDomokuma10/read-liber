@@ -20,6 +20,15 @@ export type ThemePalette = {
     primary: string;
     secondary: string;
   };
+  ambient: {
+    linearStart: string;
+    linearMiddle: string;
+    linearEnd: string;
+    topGlow: string;
+    topGlowOpacity: number;
+    sideGlow: string;
+    sideGlowOpacity: number;
+  };
   readingSurface: string;
   glass: {
     background: string;

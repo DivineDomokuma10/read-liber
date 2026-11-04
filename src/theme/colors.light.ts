@@ -16,6 +16,15 @@ export const lightPalette: ThemePalette = {
     primary: "#f6f8f4",
     secondary: "#edf2ed",
   },
+  ambient: {
+    linearStart: "#f6f8f4",
+    linearMiddle: "#edf2ed",
+    linearEnd: "#f5f3ed",
+    topGlow: "#b4cfbd",
+    topGlowOpacity: 0.72,
+    sideGlow: "#d7c9ab",
+    sideGlowOpacity: 0.46,
+  },
   readingSurface: "#fbf9f2",
   glass: {
     background: "rgba(255, 255, 255, 0.58)",
