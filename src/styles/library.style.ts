@@ -212,20 +212,7 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
     },
     fab: {
       position: "absolute",
-      right: 24,
-      bottom: 32,
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      alignItems: "center",
-      justifyContent: "center",
-      // Primary CTA fills use the brand color (DS §9); full restyle in DS-14.
-      backgroundColor: colors.brand.primary,
-    },
-    fabLabel: {
-      fontSize: 28,
-      lineHeight: 30,
-      // Inverted-on-dark token arrives with DS-7/DS-14.
-      color: "#fff",
+      right: layout.screenGutter,
+      zIndex: 10,
     },
   });

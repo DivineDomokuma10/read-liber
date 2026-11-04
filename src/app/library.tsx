@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   SectionList,
@@ -27,12 +30,14 @@ import { FilterPill } from "@/components/FilterPill";
 import { IconButton } from "@/components/IconButton";
 import {
   MoonIcon,
+  PlusIcon,
   SearchIcon,
   StarIcon,
   XCircleIcon,
 } from "@/components/icons";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useDocFilePicker } from "@/hooks";
+import { layout } from "@/theme";
 
 type LibraryState =
   | { status: "loading"; documents: Document[] }
@@ -54,6 +59,7 @@ type LibraryFilter = "all" | "favorites";
  */
 export default function Library() {
   const { onFilePick } = useDocFilePicker();
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const styles = useStyles(makeLibraryStyle);
   const [state, setState] = useState<LibraryState>({
@@ -421,14 +427,6 @@ export default function Library() {
                   />
                 )}
               />
-              <TouchableOpacity
-                style={styles.fab}
-                onPress={handleOpenDocument}
-                accessibilityRole="button"
-                accessibilityLabel="Open a document"
-              >
-                <Text style={styles.fabLabel}>+</Text>
-              </TouchableOpacity>
             </View>
           )}
         </>
@@ -452,9 +450,22 @@ export default function Library() {
       ) : (
         <>
           <Text style={styles.sectionTitle}>Recent</Text>
-          <EmptyLibrary onOpenDocument={handleOpenDocument} />
+          <EmptyLibrary />
         </>
       )}
+
+      {state.status !== "loading" ? (
+        <PrimaryButton
+          label="Open document"
+          icon={<PlusIcon size={16} color={colors.brand.onPrimary} />}
+          style={[
+            styles.fab,
+            { bottom: Math.max(insets.bottom, layout.safeBottomMin) },
+          ]}
+          onPress={handleOpenDocument}
+          accessibilityLabel="Open a document"
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
