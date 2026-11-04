@@ -24,7 +24,7 @@ import { Database } from "@/services/db.services";
 import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { DocumentListItem } from "@/components/DocumentListItem";
 import { IconButton } from "@/components/IconButton";
-import { SearchIcon } from "@/components/icons";
+import { MoonIcon, SearchIcon } from "@/components/icons";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useDocFilePicker } from "@/hooks";
 
@@ -262,14 +262,27 @@ export default function Library() {
           </>
         ) : (
           <>
-            <Text style={styles.headerTitle}>Reader</Text>
+            <View style={styles.headerTitleBlock}>
+              <Text style={styles.headerEyebrow}>Your reader</Text>
+              <Text style={styles.headerTitle}>Recent</Text>
+            </View>
 
-            <IconButton
-              accessibilityLabel="Search library"
-              onPress={() => setSearchActive(true)}
-            >
-              <SearchIcon color={colors.text.primary} />
-            </IconButton>
+            <View style={styles.headerActions}>
+              <View
+                accessible
+                accessibilityRole="image"
+                accessibilityLabel="Theme follows system appearance"
+                style={styles.themeIndicator}
+              >
+                <MoonIcon color={colors.text.primary} />
+              </View>
+              <IconButton
+                accessibilityLabel="Search library"
+                onPress={() => setSearchActive(true)}
+              >
+                <SearchIcon color={colors.text.primary} />
+              </IconButton>
+            </View>
           </>
         )}
       </View>

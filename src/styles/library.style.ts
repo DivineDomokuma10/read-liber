@@ -1,7 +1,15 @@
 import { StyleSheet } from "react-native";
 
 import type { ThemePalette } from "@/theme";
-import { interaction } from "@/theme";
+import {
+  fonts,
+  glassSurface,
+  interaction,
+  layout,
+  radius,
+  tracking,
+  typography,
+} from "@/theme";
 
 /**
  * Library screen styles — DS chunks DS-10/DS-12/DS-15 restyle values.
@@ -17,25 +25,44 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: 20,
+      paddingHorizontal: layout.headerGutter,
       paddingVertical: 12,
+    },
+    headerTitleBlock: {
+      gap: 5,
+    },
+    headerEyebrow: {
+      color: colors.text.secondary,
+      fontFamily: fonts.ui.bold,
+      fontSize: typography.eyebrow.sizeMin,
+      lineHeight: typography.eyebrow.sizeMin,
+      letterSpacing: typography.eyebrow.sizeMin * tracking.eyebrow,
+      textTransform: "uppercase",
     },
     searchHeader: {
       gap: 8,
       paddingVertical: 8,
     },
     headerTitle: {
-      fontSize: 22,
-      fontWeight: "700",
+      color: colors.text.primary,
+      fontFamily: fonts.ui.semiBold,
+      fontSize: typography.screenTitle.size,
+      lineHeight:
+        typography.screenTitle.size * typography.screenTitle.lineHeightFactor,
+      letterSpacing: typography.screenTitle.size * tracking.title,
     },
-    headerIcon: {
-      fontSize: 22,
+    headerActions: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
     },
-    headerAction: {
+    themeIndicator: {
       width: interaction.preferredTarget,
       height: interaction.preferredTarget,
+      borderRadius: radius.pill,
       alignItems: "center",
       justifyContent: "center",
+      ...glassSurface(colors),
     },
     searchField: {
       flex: 1,
