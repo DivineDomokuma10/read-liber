@@ -25,7 +25,12 @@ import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { DocumentListItem } from "@/components/DocumentListItem";
 import { FilterPill } from "@/components/FilterPill";
 import { IconButton } from "@/components/IconButton";
-import { MoonIcon, SearchIcon, StarIcon } from "@/components/icons";
+import {
+  MoonIcon,
+  SearchIcon,
+  StarIcon,
+  XCircleIcon,
+} from "@/components/icons";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useDocFilePicker } from "@/hooks";
 
@@ -234,6 +239,9 @@ export default function Library() {
         {searchActive ? (
           <>
             <View style={styles.searchField}>
+              <View pointerEvents="none" style={styles.searchIcon}>
+                <SearchIcon size={18} color={colors.text.muted} />
+              </View>
               <TextInput
                 value={query}
                 onChangeText={setQuery}
@@ -245,8 +253,8 @@ export default function Library() {
                 returnKeyType="search"
                 maxLength={120}
                 placeholder="Search documents"
-                placeholderTextColor="#747474"
-                selectionColor="#111111"
+                placeholderTextColor={colors.text.muted}
+                selectionColor={colors.brand.secondary}
                 underlineColorAndroid="transparent"
                 style={styles.searchInput}
                 accessibilityRole="search"
@@ -259,7 +267,7 @@ export default function Library() {
                   accessibilityRole="button"
                   accessibilityLabel="Clear library search"
                 >
-                  <Text style={styles.searchClearLabel}>{"\u00D7"}</Text>
+                  <XCircleIcon size={18} color={colors.text.secondary} />
                 </TouchableOpacity>
               ) : null}
             </View>

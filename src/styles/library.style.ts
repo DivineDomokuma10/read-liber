@@ -42,6 +42,7 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
     searchHeader: {
       gap: 8,
       paddingVertical: 8,
+      paddingHorizontal: layout.screenGutter,
     },
     headerTitle: {
       color: colors.text.primary,
@@ -76,15 +77,20 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
       minHeight: interaction.preferredTarget,
       flexDirection: "row",
       alignItems: "center",
-      borderRadius: 10,
-      backgroundColor: colors.background.secondary,
+      borderRadius: radius.medium,
+      ...glassSurface(colors),
+    },
+    searchIcon: {
+      marginLeft: 14,
     },
     searchInput: {
       flex: 1,
       minHeight: interaction.preferredTarget,
-      paddingHorizontal: 14,
+      paddingLeft: 10,
+      paddingRight: 4,
       paddingVertical: 8,
       color: colors.text.primary,
+      fontFamily: fonts.ui.regular,
       fontSize: 16,
     },
     searchClear: {
@@ -106,8 +112,8 @@ export const makeLibraryStyle = (colors: ThemePalette) =>
     },
     searchCancelLabel: {
       color: colors.text.primary,
+      fontFamily: fonts.ui.semiBold,
       fontSize: 14,
-      fontWeight: "600",
     },
     sectionTitle: {
       fontSize: 16,
